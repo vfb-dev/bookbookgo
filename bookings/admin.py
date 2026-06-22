@@ -4,4 +4,15 @@ from .models import Appointment
 # Register your models here.
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "full_name",
+        "service",
+        "appointment_date",
+        "appointment_time",
+        "email",
+        "phone",
+        "created_at",
+    )
+        
+    list_filter = ("service", "appointment_date", "business_type")
+    search_fields = ("full_name", "email", "phone", "business_name")
