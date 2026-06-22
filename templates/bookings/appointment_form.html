@@ -1,15 +1,24 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+
+<!-- Content -->
+{% block content %}
 <div class="container py-5">
   <h1 class="mb-4">Book an Accounting Consultation</h1>
 
   <form method="post" class="row g-3">
-    {% csrf_token %} {% for field in form %}
+    {% csrf_token %}
+
+    <!-- Form -->
+    {% for field in form %}
     <div class="col-md-6">
       <label class="form-label" for="{{ field.id_for_label }}">
         {{ field.label }}
       </label>
 
-      {{ field }} {% if field.errors %}
+      {{ field }}
+
+      <!-- Errors -->
+      {% if field.errors %}
       <div class="text-danger small">{{ field.errors }}</div>
       {% endif %}
     </div>

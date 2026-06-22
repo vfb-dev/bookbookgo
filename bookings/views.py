@@ -13,6 +13,10 @@ class AppointmentCreateView(View):
 
         if form.is_valid():
             form.save()
-            return redirect("appointment_create")
+            return redirect("appointment_success")
 
         return render(request, "bookings/appointment_form.html", {"form": form})
+    
+class AppointmentSuccessView(View):
+    def get(self, request):
+        return render(request, "bookings/appointment_success.html")
