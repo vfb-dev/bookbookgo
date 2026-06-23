@@ -1,5 +1,8 @@
 from datetime import timedelta
 
+from .forms import AppointmentForm, AppointmentStatusForm
+from .models import Appointment
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
@@ -7,9 +10,8 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.db.models import Q
+from django.core.paginator import Paginator
 
-from .forms import AppointmentForm, AppointmentStatusForm
-from .models import Appointment
 
 # Create your views here.
 class HomeView(View):
@@ -58,11 +60,16 @@ class DashboardView(LoginRequiredMixin, View):
                 | Q(business_name__icontains=search_query)
             )
 
+        paginator = Paginator(appointments, 10)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
         context = {
             "total_appointments": Appointment.objects.count(),
             "pending_appointments": Appointment.objects.filter(status="pending").count(),
             "confirmed_appointments": Appointment.objects.filter(status="confirmed").count(),
-            "upcoming_appointments": appointments,
+            "upcoming_appointments": page_obj,
+            "page_obj": page_obj,
             "selected_status": selected_status,
             "search_query": search_query,
             "date_filter": date_filter,
