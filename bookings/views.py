@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .forms import AppointmentForm
 from .models import Appointment
@@ -14,14 +14,19 @@ class AppointmentCreateView(View):
         form = AppointmentForm(request.POST)
 
         if form.is_valid():
-            form.save()
-            return redirect("appointment_success")
+            appointment = form.save()
+            return redirect("appointment_success", pk=appointment.pk)
 
         return render(request, "bookings/appointment_form.html", {"form": form})
     
 class AppointmentSuccessView(View):
-    def get(self, request):
-        return render(request, "bookings/appointment_success.html")
+    def get(self, request, pk):
+        appointment = get_object_or_404(Appointment, pk=pk)
+        return render(
+            request,
+            "bookings/appointment_success.html",
+            {"appointment": appointment},
+        )
     
 class BookedTimesView(View):
     def get(self, request):

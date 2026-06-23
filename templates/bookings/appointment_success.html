@@ -1,21 +1,44 @@
-{% extends 'base.html' %}
-
-<!-- Content -->
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-      <div class="border rounded-3 p-4 text-center bg-light">
-        <h1 class="h3 mb-3">Appointment Request Sent</h1>
+      <div class="border rounded-3 p-4 bg-light">
+        <h1 class="h3 mb-3 text-center">Appointment Request Sent</h1>
 
-        <p class="mb-4">
-          Thank you. Your accounting consultation request has been received. We
-          will review your details and contact you to confirm the appointment.
+        <p class="text-center mb-4">
+          Thank you, {{ appointment.full_name }}. Your request has been
+          received.
         </p>
 
-        <a href="{% url 'appointment_create' %}" class="btn btn-primary">
-          Book Another Appointment
-        </a>
+        <ul class="list-group mb-4">
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>Service</strong>
+            <span>{{ appointment.get_service_display }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>Date</strong>
+            <span>{{ appointment.appointment_date }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>Time</strong>
+            <span>{{ appointment.appointment_time|time:"g:i A" }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>Status</strong>
+            <span>{{ appointment.get_status_display }}</span>
+          </li>
+        </ul>
+
+        <p class="small text-muted text-center">
+          We will review your details and contact you to confirm the
+          appointment.
+        </p>
+
+        <div class="text-center">
+          <a href="{% url 'appointment_create' %}" class="btn btn-primary">
+            Book Another Appointment
+          </a>
+        </div>
       </div>
     </div>
   </div>

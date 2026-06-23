@@ -3,7 +3,7 @@ from .views import AppointmentCreateView, AppointmentSuccessView, BookedTimesVie
 
 urlpatterns = [
     path('book/', AppointmentCreateView.as_view(), name="appointment_create"),
-    path("booking/success/", AppointmentSuccessView.as_view(), name="appointment_success"),
+    path("booking/success/<int:pk>/", AppointmentSuccessView.as_view(), name="appointment_success"),
 
     path("booked-times/", BookedTimesView.as_view(), name="booked_times"),
 ]
