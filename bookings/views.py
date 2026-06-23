@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator
-
+from django.contrib import messages
 
 # Create your views here.
 class HomeView(View):
@@ -123,6 +123,7 @@ class AppointmentDetailView(LoginRequiredMixin, View):
 
         if status_form.is_valid():
             status_form.save()
+            messages.success(request, "Appointment status updated successfully.")
             return redirect("appointment_detail", pk=appointment.pk)
 
         return render(request, "bookings/appointment_detail.html", {"appointment": appointment, "status_form": status_form})
