@@ -9,10 +9,11 @@ class AppointmentAdmin(admin.ModelAdmin):
         "service",
         "appointment_date",
         "appointment_time",
+        "status",
         "email",
         "phone",
         "created_at",
     )
-        
-    list_filter = ("service", "appointment_date", "business_type")
+    list_filter = ("status", "service", "appointment_date", "business_type")
     search_fields = ("full_name", "email", "phone", "business_name")
+    list_editable = ("status",)

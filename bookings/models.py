@@ -39,6 +39,13 @@ class Appointment(models.Model):
         (time(16, 0), "4:00 PM"),
     ]
 
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("confirmed", "Confirmed"),
+        ("cancelled", "Cancelled"),
+        ("completed", "Completed"),
+    ]
+
     service = models.CharField(max_length=50, choices=SERVICE_CHOICES)
     appointment_date = models.DateField()
     appointment_time = models.TimeField(choices=TIME_CHOICES)
@@ -48,5 +55,5 @@ class Appointment(models.Model):
     business_name = models.CharField(max_length=120, blank=True)
     business_type = models.CharField(max_length=50, choices=BUSINESS_TYPE_CHOICES)
     message = models.TextField(blank=True)
-    status = models.CharField(max_length=20, default="pending")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
