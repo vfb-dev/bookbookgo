@@ -34,4 +34,38 @@
     </div>
   </form>
 </div>
+
+<script>
+  const dateInput = document.querySelector("#id_appointment_date");
+  const timeSelect = document.querySelector("#id_appointment_time");
+
+  function resetTimeOptions() {
+    for (const option of timeSelect.options) {
+      option.disabled = false;
+      option.textContent = option.textContent.replace(" (Booked)", "");
+    }
+  }
+
+  dateInput.addEventListener("change", async function () {
+    resetTimeOptions();
+
+    if (!dateInput.value) {
+      return;
+    }
+
+    const response = await fetch(`/booked-times/?date=${dateInput.value}`);
+    const data = await response.json();
+
+    for (const option of timeSelect.options) {
+      if (data.booked_times.includes(option.value)) {
+        option.disabled = true;
+        option.textContent = `${option.textContent} (Booked)`;
+      }
+    }
+
+    if (timeSelect.selectedOptions[0]?.disabled) {
+      timeSelect.value = "";
+    }
+  });
+</script>
 {% endblock %}
