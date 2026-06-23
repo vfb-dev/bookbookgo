@@ -3,36 +3,120 @@
 <!-- Content -->
 {% block content %}
 <div class="container py-5">
-  <h1 class="mb-4">Book an Accounting Consultation</h1>
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="mb-4">
+        <h1 class="display-6 fw-bold mb-2">Book an Accounting Consultation</h1>
+        <p class="text-muted mb-0">
+          Choose a service, select an available time, and tell us what you need
+          help with.
+        </p>
+      </div>
 
-  <form method="post" class="row g-3">
-    {% csrf_token %}
+      <form method="post" class="border rounded-3 p-4 bg-light">
+        {% csrf_token %} {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
 
-    <!-- Form Errors -->
-    {% if form.non_field_errors %}
-    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-    {% endif %}
+        <h2 class="h5 mb-3">Appointment Details</h2>
 
-    <!-- Form -->
-    {% for field in form %}
-    <div class="col-md-6">
-      <label class="form-label" for="{{ field.id_for_label }}">
-        {{ field.label }}
-      </label>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label" for="{{ form.service.id_for_label }}">
+              Service
+            </label>
+            {{ form.service }} {{ form.service.errors }}
+          </div>
 
-      {{ field }}
+          <div class="col-md-4">
+            <label
+              class="form-label"
+              for="{{ form.appointment_date.id_for_label }}"
+            >
+              Date
+            </label>
+            {{ form.appointment_date }} {{ form.appointment_date.errors }}
+          </div>
 
-      <!-- Form Field Errors -->
-      {% if field.errors %}
-      <div class="text-danger small">{{ field.errors }}</div>
-      {% endif %}
+          <div class="col-md-4">
+            <label
+              class="form-label"
+              for="{{ form.appointment_time.id_for_label }}"
+            >
+              Time
+            </label>
+            {{ form.appointment_time }} {{ form.appointment_time.errors }}
+          </div>
+        </div>
+
+        <h2 class="h5 mb-3">Client Information</h2>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label" for="{{ form.full_name.id_for_label }}">
+              Full Name
+            </label>
+            {{ form.full_name }} {{ form.full_name.errors }}
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label" for="{{ form.email.id_for_label }}">
+              Email
+            </label>
+            {{ form.email }} {{ form.email.errors }}
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label" for="{{ form.phone.id_for_label }}">
+              Phone
+            </label>
+            {{ form.phone }} {{ form.phone.errors }}
+          </div>
+        </div>
+
+        <h2 class="h5 mb-3">Business Information</h2>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label
+              class="form-label"
+              for="{{ form.business_name.id_for_label }}"
+            >
+              Business Name
+            </label>
+            {{ form.business_name }} {{ form.business_name.errors }}
+          </div>
+
+          <div class="col-md-6">
+            <label
+              class="form-label"
+              for="{{ form.business_type.id_for_label }}"
+            >
+              Business Type
+            </label>
+            {{ form.business_type }} {{ form.business_type.errors }}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="{{ form.message.id_for_label }}">
+              Message
+            </label>
+            {{ form.message }} {{ form.message.errors }}
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center gap-3">
+          <p class="small text-muted mb-0">
+            Your appointment will be reviewed before it is confirmed.
+          </p>
+
+          <button type="submit" class="btn btn-primary">
+            Request Appointment
+          </button>
+        </div>
+      </form>
     </div>
-    {% endfor %}
-
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary">Request Appointment</button>
-    </div>
-  </form>
+  </div>
 </div>
 
 <script>
