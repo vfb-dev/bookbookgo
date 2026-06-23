@@ -18,16 +18,22 @@ class DashboardView(LoginRequiredMixin, View):
 
     def get(self, request):
         today = timezone.localdate()
+        selected_status = request.GET.get("status", "")
 
         appointments = Appointment.objects.filter(
             appointment_date__gte=today
         ).order_by("appointment_date", "appointment_time")
+
+        if selected_status:
+            appointments = appointments.filter(status=selected_status)
 
         context = {
             "total_appointments": Appointment.objects.count(),
             "pending_appointments": Appointment.objects.filter(status="pending").count(),
             "confirmed_appointments": Appointment.objects.filter(status="confirmed").count(),
             "upcoming_appointments": appointments,
+            "selected_status": selected_status,
+            "status_choices": Appointment.STATUS_CHOICES,
         }
 
         return render(request, "bookings/dashboard.html", context)
