@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 
-from .forms import AppointmentForm
+from .forms import AppointmentForm, AppointmentStatusForm
 from .models import Appointment
 
 # Create your views here.
@@ -60,12 +60,26 @@ class AppointmentDetailView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         appointment = get_object_or_404(Appointment, pk=pk)
+        status_form = AppointmentStatusForm(instance=appointment)
 
         return render(
             request,
             "bookings/appointment_detail.html",
-            {"appointment": appointment},
+            {
+                "appointment": appointment,
+                "status_form": status_form,
+            },
         )
+
+    def post(self, request, pk):
+        appointment = get_object_or_404(Appointment, pk=pk)
+        status_form = AppointmentStatusForm(request.POST, instance=appointment)
+
+        if status_form.is_valid():
+            status_form.save()
+            return redirect("appointment_detail", pk=appointment.pk)
+
+        return render(request, "bookings/appointment_detail.html", {"appointment": appointment, "status_form": status_form})
     
 class BookedTimesView(View):
     def get(self, request):

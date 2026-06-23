@@ -63,3 +63,12 @@ class AppointmentForm(forms.ModelForm):
                 )
 
         return cleaned_data
+    
+class AppointmentStatusForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ["status"]
+
+        widgets = {
+            "status": forms.Select(attrs={"class": "form-select"}),
+        }
