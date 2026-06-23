@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+<!-- Content -->
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1">{{ appointment.full_name }}</h1>
+      <!-- prettier-ignore -->
+      <p class="text-muted mb-0">
+        {{ appointment.get_service_display }} •
+        {{ appointment.appointment_date }} at
+        {{ appointment.appointment_time|time:"g:i A" }}
+      </p>
+    </div>
+
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+      Back to Dashboard
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="border rounded-3 p-4 bg-light">
+        <h2 class="h5 mb-3">Client Information</h2>
+
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Full Name</dt>
+          <dd class="col-sm-8">{{ appointment.full_name }}</dd>
+
+          <dt class="col-sm-4">Email</dt>
+          <dd class="col-sm-8">{{ appointment.email }}</dd>
+
+          <dt class="col-sm-4">Phone</dt>
+          <dd class="col-sm-8">{{ appointment.phone }}</dd>
+
+          <dt class="col-sm-4">Business Name</dt>
+          <dd class="col-sm-8">
+            {{ appointment.business_name|default:"Not provided" }}
+          </dd>
+
+          <dt class="col-sm-4">Business Type</dt>
+          <dd class="col-sm-8">{{ appointment.get_business_type_display }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="border rounded-3 p-4 bg-light">
+        <h2 class="h5 mb-3">Appointment</h2>
+
+        <dl class="row mb-0">
+          <dt class="col-sm-5">Service</dt>
+          <dd class="col-sm-7">{{ appointment.get_service_display }}</dd>
+
+          <dt class="col-sm-5">Date</dt>
+          <dd class="col-sm-7">{{ appointment.appointment_date }}</dd>
+
+          <dt class="col-sm-5">Time</dt>
+          <dd class="col-sm-7">
+            {{ appointment.appointment_time|time:"g:i A" }}
+          </dd>
+
+          <dt class="col-sm-5">Status</dt>
+          <dd class="col-sm-7">{{ appointment.get_status_display }}</dd>
+
+          <dt class="col-sm-5">Created</dt>
+          <dd class="col-sm-7">{{ appointment.created_at }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="border rounded-3 p-4 bg-light">
+        <h2 class="h5 mb-3">Message</h2>
+        <p class="mb-0">
+          {{ appointment.message|default:"No message provided." }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

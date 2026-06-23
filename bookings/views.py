@@ -55,6 +55,18 @@ class AppointmentSuccessView(View):
             {"appointment": appointment},
         )
     
+class AppointmentDetailView(LoginRequiredMixin, View):
+    login_url = "/admin/login/"
+
+    def get(self, request, pk):
+        appointment = get_object_or_404(Appointment, pk=pk)
+
+        return render(
+            request,
+            "bookings/appointment_detail.html",
+            {"appointment": appointment},
+        )
+    
 class BookedTimesView(View):
     def get(self, request):
         appointment_date = request.GET.get("date")
