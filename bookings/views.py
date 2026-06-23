@@ -5,6 +5,10 @@ from .models import Appointment
 from django.http import JsonResponse
 
 # Create your views here.
+class HomeView(View):
+    def get(self, request):
+        return render(request, "bookings/home.html")
+
 class AppointmentCreateView(View):
     def get(self, request):
         form = AppointmentForm()
