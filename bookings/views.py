@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 
+from django.db.models import Q
+
 from .forms import AppointmentForm, AppointmentStatusForm
 from .models import Appointment
 
@@ -19,6 +21,7 @@ class DashboardView(LoginRequiredMixin, View):
     def get(self, request):
         today = timezone.localdate()
         selected_status = request.GET.get("status", "")
+        search_query = request.GET.get("q", "")
 
         appointments = Appointment.objects.filter(
             appointment_date__gte=today
@@ -27,12 +30,21 @@ class DashboardView(LoginRequiredMixin, View):
         if selected_status:
             appointments = appointments.filter(status=selected_status)
 
+        if search_query:
+            appointments = appointments.filter(
+                Q(full_name__icontains=search_query)
+                | Q(email__icontains=search_query)
+                | Q(phone__icontains=search_query)
+                | Q(business_name__icontains=search_query)
+            )
+
         context = {
             "total_appointments": Appointment.objects.count(),
             "pending_appointments": Appointment.objects.filter(status="pending").count(),
             "confirmed_appointments": Appointment.objects.filter(status="confirmed").count(),
             "upcoming_appointments": appointments,
             "selected_status": selected_status,
+            "search_query": search_query,
             "status_choices": Appointment.STATUS_CHOICES,
         }
 

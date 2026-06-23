@@ -32,6 +32,18 @@
 
   <form method="get" class="row g-2 align-items-end mb-3">
     <div class="col-md-4">
+      <label for="q" class="form-label">Search</label>
+      <input
+        type="search"
+        name="q"
+        id="q"
+        class="form-control"
+        placeholder="Name, email, phone, or business"
+        value="{{ search_query }}"
+      />
+    </div>
+
+    <div class="col-md-3">
       <label for="status" class="form-label">Filter by Status</label>
       <select name="status" id="status" class="form-select">
         <option value="">All statuses</option>
