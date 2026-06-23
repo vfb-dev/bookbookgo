@@ -28,9 +28,10 @@
     </div>
   </div>
 
-  <h2 class="h4 mb-3">Upcoming Appointments</h2>
+  <h2 class="h4 mb-3">Appointments</h2>
 
   <form method="get" class="row g-2 align-items-end mb-3">
+    <!-- SEARCH -->
     <div class="col-md-4">
       <label for="q" class="form-label">Search</label>
       <input
@@ -43,6 +44,7 @@
       />
     </div>
 
+    <!-- SEARCH -->
     <div class="col-md-3">
       <label for="status" class="form-label">Filter by Status</label>
       <select name="status" id="status" class="form-select">
@@ -54,6 +56,22 @@
           {{ label }}
         </option>
         {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label for="date_filter" class="form-label">Date</label>
+      <select name="date_filter" id="date_filter" class="form-select">
+        <!-- prettier-ignore -->
+        <option value="upcoming" {% if date_filter == "upcoming" %}selected{% endif %}>Upcoming</option>
+        <!-- prettier-ignore -->
+        <option value="today" {% if date_filter == "today" %}selected{% endif %}>Today</option>
+        <!-- prettier-ignore -->
+        <option value="week" {% if date_filter == "week" %}selected{% endif %}>This week</option>
+        <!-- prettier-ignore -->
+        <option value="month" {% if date_filter == "month" %}selected{% endif %}>This month</option>
+        <!-- prettier-ignore -->
+        <option value="all" {% if date_filter == "all" %}selected{% endif %}>All</option>
       </select>
     </div>
 

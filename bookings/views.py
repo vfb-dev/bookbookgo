@@ -1,10 +1,11 @@
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
-
 from django.db.models import Q
 
 from .forms import AppointmentForm, AppointmentStatusForm
@@ -22,10 +23,29 @@ class DashboardView(LoginRequiredMixin, View):
         today = timezone.localdate()
         selected_status = request.GET.get("status", "")
         search_query = request.GET.get("q", "")
+        date_filter = request.GET.get("date_filter", "upcoming")
 
-        appointments = Appointment.objects.filter(
-            appointment_date__gte=today
-        ).order_by("appointment_date", "appointment_time")
+        appointments = Appointment.objects.all()
+
+        if date_filter == "today":
+            appointments = appointments.filter(appointment_date=today)
+        elif date_filter == "week":
+            end_date = today + timedelta(days=7)
+            appointments = appointments.filter(
+                appointment_date__gte=today,
+                appointment_date__lte=end_date,
+            )
+        elif date_filter == "month":
+            appointments = appointments.filter(
+                appointment_date__year=today.year,
+                appointment_date__month=today.month,
+            )
+        elif date_filter == "all":
+            appointments = appointments
+        else:
+            appointments = appointments.filter(appointment_date__gte=today)
+
+        appointments = appointments.order_by("appointment_date", "appointment_time")
 
         if selected_status:
             appointments = appointments.filter(status=selected_status)
@@ -45,6 +65,7 @@ class DashboardView(LoginRequiredMixin, View):
             "upcoming_appointments": appointments,
             "selected_status": selected_status,
             "search_query": search_query,
+            "date_filter": date_filter,
             "status_choices": Appointment.STATUS_CHOICES,
         }
 
