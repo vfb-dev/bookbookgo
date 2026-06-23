@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+<!-- Content -->
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Dashboard</h1>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="border rounded-3 p-3 bg-light">
+        <p class="text-muted mb-1">Total Appointments</p>
+        <h2 class="mb-0">{{ total_appointments }}</h2>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="border rounded-3 p-3 bg-light">
+        <p class="text-muted mb-1">Pending</p>
+        <h2 class="mb-0">{{ pending_appointments }}</h2>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="border rounded-3 p-3 bg-light">
+        <p class="text-muted mb-1">Confirmed</p>
+        <h2 class="mb-0">{{ confirmed_appointments }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="h4 mb-3">Upcoming Appointments</h2>
+
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Service</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appointment in upcoming_appointments %}
+        <tr>
+          <td>{{ appointment.full_name }}</td>
+          <td>{{ appointment.get_service_display }}</td>
+          <td>{{ appointment.appointment_date }}</td>
+          <td>{{ appointment.appointment_time|time:"g:i A" }}</td>
+          <td>
+            <span class="badge bg-secondary">
+              {{ appointment.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-muted text-center py-4">
+            No upcoming appointments.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
