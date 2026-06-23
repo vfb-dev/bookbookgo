@@ -57,3 +57,13 @@ class Appointment(models.Model):
     message = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_status_badge_class(self):
+        badge_classes = {
+            "pending": "bg-warning text-dark",
+            "confirmed": "bg-success",
+            "cancelled": "bg-danger",
+            "completed": "bg-secondary",
+        }
+
+        return badge_classes.get(self.status, "bg-secondary")
