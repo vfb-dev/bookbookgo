@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django import forms
 from .models import Appointment
 
@@ -26,6 +28,8 @@ class AppointmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["appointment_date"].widget.attrs["min"] = timezone.localdate().isoformat()
+
         for field in self.fields.values():
             field.widget.attrs.setdefault("class", "form-control")
 
@@ -34,6 +38,18 @@ class AppointmentForm(forms.ModelForm):
         appointment_date = cleaned_data.get("appointment_date")
         appointment_time = cleaned_data.get("appointment_time")
 
+        if appointment_date and appointment_date < timezone.localdate():
+            self.add_error(
+                "appointment_date",
+                "Please choose today or a future date."
+            )
+
+        if appointment_date and appointment_date.weekday() >= 5:
+            self.add_error(
+                "appointment_date",
+                "Appointments are only available Monday through Friday."
+            )
+
         if appointment_date and appointment_time:
             appointment_exists = Appointment.objects.filter(
                 appointment_date=appointment_date,
@@ -41,7 +57,8 @@ class AppointmentForm(forms.ModelForm):
             ).exists()
 
             if appointment_exists:
-                raise forms.ValidationError(
+                self.add_error(
+                    "appointment_time",
                     "This appointment time is already booked. Please choose another time."
                 )
 
