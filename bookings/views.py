@@ -2,6 +2,11 @@ from datetime import timedelta
 
 from .forms import AppointmentForm, AppointmentStatusForm
 from .models import Appointment
+from .emails import (
+    send_accountant_new_appointment_email,
+    send_client_appointment_received_email,
+    send_client_status_update_email
+)
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
@@ -12,8 +17,10 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 
-# Create your views here.
+
 class HomeView(View):
     def get(self, request):
         return render(request, "bookings/home.html")
@@ -88,6 +95,10 @@ class AppointmentCreateView(View):
 
         if form.is_valid():
             appointment = form.save()
+            
+            send_client_appointment_received_email(appointment)
+            send_accountant_new_appointment_email(appointment)
+
             return redirect("appointment_success", pk=appointment.pk)
 
         return render(request, "bookings/appointment_form.html", {"form": form})
@@ -119,14 +130,38 @@ class AppointmentDetailView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         appointment = get_object_or_404(Appointment, pk=pk)
+        old_status = appointment.status
+
         status_form = AppointmentStatusForm(request.POST, instance=appointment)
 
         if status_form.is_valid():
-            status_form.save()
-            messages.success(request, "Appointment status updated successfully.")
+            appointment = status_form.save()
+
+            if appointment.status != old_status:
+                if appointment.status in ["confirmed", "cancelled"]:
+                    send_client_status_update_email(appointment)
+                    messages.success(
+                        request,
+                        "Appointment status updated and client notified."
+                    )
+                else:
+                    messages.success(
+                        request,
+                        "Appointment status updated."
+                    )
+            else:
+                messages.info(request, "No status change was made.")
+
             return redirect("appointment_detail", pk=appointment.pk)
 
-        return render(request, "bookings/appointment_detail.html", {"appointment": appointment, "status_form": status_form})
+        return render(
+            request,
+            "bookings/appointment_detail.html",
+            {
+                "appointment": appointment,
+                "status_form": status_form,
+            },
+        )
     
 class BookedTimesView(View):
     def get(self, request):
