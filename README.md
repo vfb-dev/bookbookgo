@@ -2,6 +2,15 @@
 
 A Django booking system for accounting consultations. Clients can request appointments, choose services, select available time slots, and receive email updates. The accountant can manage services, appointments, statuses, and client requests from a protected dashboard.
 
+## Screenshots
+
+<div align="left">
+  <p float="left">
+    <img src="static/images/screenshot1.png" width="45%" />
+    <img src="static/images/screenshot2.png" width="45%" />
+  </p>
+</div>
+
 ## Features
 
 - Public appointment booking form
