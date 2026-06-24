@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+
+<!-- Content -->
+{% block content %}
 <section class="py-5">
   <div class="container">
     <div class="row align-items-center g-5">
@@ -21,13 +24,27 @@
         <div class="border rounded-3 p-4 bg-light">
           <h2 class="h5 mb-3">Services</h2>
 
-          <ul class="list-unstyled mb-0">
-            <li class="mb-2">Tax consultation</li>
-            <li class="mb-2">Bookkeeping setup</li>
-            <li class="mb-2">Payroll review</li>
-            <li class="mb-2">Business finance consultation</li>
-            <li>Personal finance consultation</li>
-          </ul>
+          <div class="d-grid gap-3">
+            {% for service in services %}
+            <div class="border-bottom pb-3">
+              <div class="d-flex justify-content-between gap-3">
+                <h3 class="h6 mb-1">{{ service.name }}</h3>
+
+                {% if service.price %}
+                <span class="fw-semibold">${{ service.price }}</span>
+                {% endif %}
+              </div>
+
+              {% if service.description %}
+              <p class="text-muted small mb-1">{{ service.description }}</p>
+              {% endif %}
+
+              <p class="small mb-0">{{ service.duration_minutes }} minutes</p>
+            </div>
+            {% empty %}
+            <p class="text-muted mb-0">No services are currently available.</p>
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>

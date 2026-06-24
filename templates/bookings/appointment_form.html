@@ -14,7 +14,9 @@
       </div>
 
       <form method="post" class="border rounded-3 p-4 bg-light">
-        {% csrf_token %} {% if form.non_field_errors %}
+        <!-- prettier-ignore -->
+        {% csrf_token %} 
+        {% if form.non_field_errors %}
         <div class="alert alert-danger">{{ form.non_field_errors }}</div>
         {% endif %}
 
@@ -25,7 +27,35 @@
             <label class="form-label" for="{{ form.service.id_for_label }}">
               Service
             </label>
-            {{ form.service }} {{ form.service.errors }}
+            <!-- prettier-ignore -->
+            {{ form.service }} 
+            {{ form.service.errors }}
+
+            <div
+              id="service-details"
+              class="border rounded-3 p-3 bg-white mt-3 d-none"
+            >
+              {% for service in services %}
+              <div
+                class="service-detail d-none"
+                data-service-id="{{ service.id }}"
+              >
+                <h3 class="h6 mb-1">{{ service.name }}</h3>
+
+                {% if service.description %}
+                <p class="text-muted small mb-2">{{ service.description }}</p>
+                {% endif %}
+
+                <p class="small mb-0">
+                  <!-- prettier-ignore -->
+                  Duration: {{ service.duration_minutes }} minutes
+                  {% if service.price %}
+                    • Price: ${{ service.price }}
+                  {% endif %}
+                </p>
+              </div>
+              {% endfor %}
+            </div>
           </div>
 
           <div class="col-md-4">
@@ -35,7 +65,9 @@
             >
               Date
             </label>
-            {{ form.appointment_date }} {{ form.appointment_date.errors }}
+            <!-- prettier-ignore -->
+            {{ form.appointment_date }} 
+            {{ form.appointment_date.errors }}
           </div>
 
           <div class="col-md-4">
@@ -45,7 +77,9 @@
             >
               Time
             </label>
-            {{ form.appointment_time }} {{ form.appointment_time.errors }}
+            <!-- prettier-ignore -->
+            {{ form.appointment_time }} 
+            {{ form.appointment_time.errors }}
           </div>
         </div>
 
@@ -56,21 +90,27 @@
             <label class="form-label" for="{{ form.full_name.id_for_label }}">
               Full Name
             </label>
-            {{ form.full_name }} {{ form.full_name.errors }}
+            <!-- prettier-ignore -->
+            {{ form.full_name }} 
+            {{ form.full_name.errors }}
           </div>
 
           <div class="col-md-4">
             <label class="form-label" for="{{ form.email.id_for_label }}">
               Email
             </label>
-            {{ form.email }} {{ form.email.errors }}
+            <!-- prettier-ignore -->
+            {{ form.email }} 
+            {{ form.email.errors }}
           </div>
 
           <div class="col-md-4">
             <label class="form-label" for="{{ form.phone.id_for_label }}">
               Phone
             </label>
-            {{ form.phone }} {{ form.phone.errors }}
+            <!-- prettier-ignore -->
+            {{ form.phone }} 
+            {{ form.phone.errors }}
           </div>
         </div>
 
@@ -84,7 +124,9 @@
             >
               Business Name
             </label>
-            {{ form.business_name }} {{ form.business_name.errors }}
+            <!-- prettier-ignore -->
+            {{ form.business_name }} 
+            {{ form.business_name.errors }}
           </div>
 
           <div class="col-md-6">
@@ -94,14 +136,18 @@
             >
               Business Type
             </label>
-            {{ form.business_type }} {{ form.business_type.errors }}
+            <!-- prettier-ignore -->
+            {{ form.business_type }} 
+            {{ form.business_type.errors }}
           </div>
 
           <div class="col-12">
             <label class="form-label" for="{{ form.message.id_for_label }}">
               Message
             </label>
-            {{ form.message }} {{ form.message.errors }}
+            <!-- prettier-ignore -->
+            {{ form.message }} 
+            {{ form.message.errors }}
           </div>
         </div>
 
@@ -151,5 +197,34 @@
       timeSelect.value = "";
     }
   });
+</script>
+
+<script>
+  const serviceSelect = document.querySelector("#id_service");
+  const serviceDetailsBox = document.querySelector("#service-details");
+  const serviceDetails = document.querySelectorAll(".service-detail");
+
+  function showSelectedServiceDetails() {
+    const selectedServiceId = serviceSelect.value;
+    let hasSelectedService = false;
+
+    serviceDetails.forEach((detail) => {
+      if (detail.dataset.serviceId === selectedServiceId) {
+        detail.classList.remove("d-none");
+        hasSelectedService = true;
+      } else {
+        detail.classList.add("d-none");
+      }
+    });
+
+    if (hasSelectedService) {
+      serviceDetailsBox.classList.remove("d-none");
+    } else {
+      serviceDetailsBox.classList.add("d-none");
+    }
+  }
+
+  serviceSelect.addEventListener("change", showSelectedServiceDetails);
+  showSelectedServiceDetails();
 </script>
 {% endblock %}

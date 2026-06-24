@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from .forms import AppointmentForm, AppointmentStatusForm
-from .models import Appointment
+from .models import Appointment, Service
 from .emails import (
     send_accountant_new_appointment_email,
     send_client_appointment_received_email,
@@ -23,7 +23,13 @@ from django.conf import settings
 
 class HomeView(View):
     def get(self, request):
-        return render(request, "bookings/home.html")
+        services = Service.objects.filter(is_active=True)
+
+        return render(
+            request,
+            "bookings/home.html",
+            {"services": services},
+        )
     
 class DashboardView(LoginRequiredMixin, View):
     login_url = "/admin/login/"
@@ -88,7 +94,9 @@ class DashboardView(LoginRequiredMixin, View):
 class AppointmentCreateView(View):
     def get(self, request):
         form = AppointmentForm()
-        return render(request, "bookings/appointment_form.html", {"form": form})
+        services = Service.objects.filter(is_active=True)
+
+        return render(request, "bookings/appointment_form.html", {"form": form, "services": services})
 
     def post(self, request):
         form = AppointmentForm(request.POST)
@@ -101,7 +109,7 @@ class AppointmentCreateView(View):
 
             return redirect("appointment_success", pk=appointment.pk)
 
-        return render(request, "bookings/appointment_form.html", {"form": form})
+        return render(request, "bookings/appointment_form.html", {"form": form, "services": Service.objects.filter(is_active=True)})
     
 class AppointmentSuccessView(View):
     def get(self, request, pk):

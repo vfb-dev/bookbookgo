@@ -1,7 +1,7 @@
 from django.utils import timezone
 
 from django import forms
-from .models import Appointment
+from .models import Appointment, Service
 
 
 class AppointmentForm(forms.ModelForm):
@@ -28,6 +28,7 @@ class AppointmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["service"].queryset = Service.objects.filter(is_active=True)
         self.fields["appointment_date"].widget.attrs["min"] = timezone.localdate().isoformat()
 
         for field in self.fields.values():
