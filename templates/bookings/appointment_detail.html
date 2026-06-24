@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 
-<!-- Content -->
+{% block title %}{{ appointment.full_name }} | BookBookGo{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="detail-title-row mb-4">
     <div>
-      <h1 class="h3 mb-1">{{ appointment.full_name }}</h1>
-      <!-- prettier-ignore -->
+      <p class="eyebrow mb-2">Appointment detail</p>
+      <h1 class="display-6 fw-bold mb-2">{{ appointment.full_name }}</h1>
       <p class="text-muted mb-0">
-        {{ appointment.service.name }} •
+        {{ appointment.service.name }} &middot;
         {{ appointment.appointment_date }} at
         {{ appointment.appointment_time|time:"g:i A" }}
       </p>
@@ -21,35 +22,44 @@
 
   <div class="row g-4">
     <div class="col-lg-7">
-      <div class="border rounded-3 p-4 bg-light">
-        <h2 class="h5 mb-3">Client Information</h2>
+      <section class="panel h-100">
+        <div class="d-flex justify-content-between gap-3 mb-3">
+          <h2 class="h4 mb-0">Client information</h2>
+          <span class="badge {{ appointment.get_status_badge_class }}">
+            {{ appointment.get_status_display }}
+          </span>
+        </div>
 
-        <dl class="row mb-0">
-          <dt class="col-sm-4">Full Name</dt>
+        <dl class="row detail-list">
+          <dt class="col-sm-4">Full name</dt>
           <dd class="col-sm-8">{{ appointment.full_name }}</dd>
 
           <dt class="col-sm-4">Email</dt>
-          <dd class="col-sm-8">{{ appointment.email }}</dd>
+          <dd class="col-sm-8">
+            <a href="mailto:{{ appointment.email }}">{{ appointment.email }}</a>
+          </dd>
 
           <dt class="col-sm-4">Phone</dt>
-          <dd class="col-sm-8">{{ appointment.phone }}</dd>
+          <dd class="col-sm-8">
+            <a href="tel:{{ appointment.phone }}">{{ appointment.phone }}</a>
+          </dd>
 
-          <dt class="col-sm-4">Business Name</dt>
+          <dt class="col-sm-4">Business name</dt>
           <dd class="col-sm-8">
             {{ appointment.business_name|default:"Not provided" }}
           </dd>
 
-          <dt class="col-sm-4">Business Type</dt>
+          <dt class="col-sm-4">Business type</dt>
           <dd class="col-sm-8">{{ appointment.get_business_type_display }}</dd>
         </dl>
-      </div>
+      </section>
     </div>
 
     <div class="col-lg-5">
-      <div class="border rounded-3 p-4 bg-light">
-        <h2 class="h5 mb-3">Appointment</h2>
+      <section class="panel h-100">
+        <h2 class="h4 mb-3">Appointment</h2>
 
-        <dl class="row mb-0">
+        <dl class="row detail-list">
           <dt class="col-sm-5">Service</dt>
           <dd class="col-sm-7">{{ appointment.service.name }}</dd>
 
@@ -61,40 +71,32 @@
             {{ appointment.appointment_time|time:"g:i A" }}
           </dd>
 
-          <dt class="col-sm-5">Status</dt>
-          <dd class="col-sm-7">
-            <span class="badge {{ appointment.get_status_badge_class }}">
-              {{ appointment.get_status_display }}
-            </span>
-          </dd>
-
           <dt class="col-sm-5">Created</dt>
           <dd class="col-sm-7">{{ appointment.created_at }}</dd>
         </dl>
 
-        <form method="post" class="mt-4">
+        <form method="post" class="mt-4 pt-4 border-top">
           {% csrf_token %}
 
           <label class="form-label" for="{{ status_form.status.id_for_label }}">
-            Update Status
+            Update status
           </label>
 
           <div class="d-flex gap-2">
             {{ status_form.status }}
-
             <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </form>
-      </div>
+      </section>
     </div>
 
     <div class="col-12">
-      <div class="border rounded-3 p-4 bg-light">
-        <h2 class="h5 mb-3">Message</h2>
+      <section class="panel">
+        <h2 class="h4 mb-3">Message</h2>
         <p class="mb-0">
           {{ appointment.message|default:"No message provided." }}
         </p>
-      </div>
+      </section>
     </div>
   </div>
 </div>

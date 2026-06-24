@@ -1,39 +1,42 @@
 {% extends 'base.html' %}
 
-<!-- Content -->
+{% block title %}Book an Appointment | BookBookGo{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      <div class="mb-4">
-        <h1 class="display-6 fw-bold mb-2">Book an Accounting Consultation</h1>
-        <p class="text-muted mb-0">
-          Choose a service, select an available time, and tell us what you need
-          help with.
-        </p>
-      </div>
+  <div class="mb-4">
+    <p class="eyebrow mb-2">Request appointment</p>
+    <h1 class="display-6 fw-bold mb-2">Book an accounting consultation</h1>
+    <p class="text-muted mb-0">
+      Choose the service, pick an open weekday time, and share the context the
+      accountant should review before confirming.
+    </p>
+  </div>
 
-      <form method="post" class="border rounded-3 p-4 bg-light">
-        <!-- prettier-ignore -->
-        {% csrf_token %} 
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-        {% endif %}
+  <div class="booking-layout">
+    <form method="post" class="booking-panel">
+      {% csrf_token %}
 
-        <h2 class="h5 mb-3">Appointment Details</h2>
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
 
-        <div class="row g-3 mb-4">
+      <section class="booking-form-section">
+        <p class="section-kicker mb-2">Step 1</p>
+        <h2 class="h4 mb-3">Appointment details</h2>
+
+        <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label" for="{{ form.service.id_for_label }}">
               Service
             </label>
-            <!-- prettier-ignore -->
-            {{ form.service }} 
+            {{ form.service }}
             {{ form.service.errors }}
 
             <div
               id="service-details"
-              class="border rounded-3 p-3 bg-white mt-3 d-none"
+              class="selection-summary p-3 mt-3 d-none"
+              aria-live="polite"
             >
               {% for service in services %}
               <div
@@ -46,13 +49,12 @@
                 <p class="text-muted small mb-2">{{ service.description }}</p>
                 {% endif %}
 
-                <p class="small mb-0">
-                  <!-- prettier-ignore -->
-                  Duration: {{ service.duration_minutes }} minutes
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="meta-pill">{{ service.duration_minutes }} minutes</span>
                   {% if service.price %}
-                    • Price: ${{ service.price }}
+                  <span class="meta-pill price">${{ service.price }}</span>
                   {% endif %}
-                </p>
+                </div>
               </div>
               {% endfor %}
             </div>
@@ -65,8 +67,7 @@
             >
               Date
             </label>
-            <!-- prettier-ignore -->
-            {{ form.appointment_date }} 
+            {{ form.appointment_date }}
             {{ form.appointment_date.errors }}
           </div>
 
@@ -77,21 +78,22 @@
             >
               Time
             </label>
-            <!-- prettier-ignore -->
-            {{ form.appointment_time }} 
+            {{ form.appointment_time }}
             {{ form.appointment_time.errors }}
           </div>
         </div>
+      </section>
 
-        <h2 class="h5 mb-3">Client Information</h2>
+      <section class="booking-form-section">
+        <p class="section-kicker mb-2">Step 2</p>
+        <h2 class="h4 mb-3">Client information</h2>
 
-        <div class="row g-3 mb-4">
+        <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label" for="{{ form.full_name.id_for_label }}">
-              Full Name
+              Full name
             </label>
-            <!-- prettier-ignore -->
-            {{ form.full_name }} 
+            {{ form.full_name }}
             {{ form.full_name.errors }}
           </div>
 
@@ -99,8 +101,7 @@
             <label class="form-label" for="{{ form.email.id_for_label }}">
               Email
             </label>
-            <!-- prettier-ignore -->
-            {{ form.email }} 
+            {{ form.email }}
             {{ form.email.errors }}
           </div>
 
@@ -108,24 +109,25 @@
             <label class="form-label" for="{{ form.phone.id_for_label }}">
               Phone
             </label>
-            <!-- prettier-ignore -->
-            {{ form.phone }} 
+            {{ form.phone }}
             {{ form.phone.errors }}
           </div>
         </div>
+      </section>
 
-        <h2 class="h5 mb-3">Business Information</h2>
+      <section class="booking-form-section">
+        <p class="section-kicker mb-2">Step 3</p>
+        <h2 class="h4 mb-3">Business context</h2>
 
-        <div class="row g-3 mb-4">
+        <div class="row g-3">
           <div class="col-md-6">
             <label
               class="form-label"
               for="{{ form.business_name.id_for_label }}"
             >
-              Business Name
+              Business name
             </label>
-            <!-- prettier-ignore -->
-            {{ form.business_name }} 
+            {{ form.business_name }}
             {{ form.business_name.errors }}
           </div>
 
@@ -134,10 +136,9 @@
               class="form-label"
               for="{{ form.business_type.id_for_label }}"
             >
-              Business Type
+              Business type
             </label>
-            <!-- prettier-ignore -->
-            {{ form.business_type }} 
+            {{ form.business_type }}
             {{ form.business_type.errors }}
           </div>
 
@@ -145,23 +146,54 @@
             <label class="form-label" for="{{ form.message.id_for_label }}">
               Message
             </label>
-            <!-- prettier-ignore -->
-            {{ form.message }} 
+            {{ form.message }}
             {{ form.message.errors }}
           </div>
         </div>
+      </section>
 
-        <div class="d-flex justify-content-between align-items-center gap-3">
-          <p class="small text-muted mb-0">
-            Your appointment will be reviewed before it is confirmed.
-          </p>
+      <div class="booking-form-section d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <p class="small text-muted mb-0">
+          The accountant will review the request before confirming the
+          appointment.
+        </p>
 
-          <button type="submit" class="btn btn-primary">
-            Request Appointment
-          </button>
-        </div>
-      </form>
-    </div>
+        <button type="submit" class="btn btn-primary btn-lg">
+          Request Appointment
+        </button>
+      </div>
+    </form>
+
+    <aside class="booking-aside">
+      <div class="panel">
+        <p class="section-kicker mb-2">What happens next</p>
+        <h2 class="h5 mb-3">A reviewed request, not an instant hold.</h2>
+
+        <ol class="aside-list">
+          <li>
+            <span class="step-number">1</span>
+            <span>
+              <strong>Submit details</strong><br />
+              <span class="text-muted small">Pick your service and preferred time.</span>
+            </span>
+          </li>
+          <li>
+            <span class="step-number">2</span>
+            <span>
+              <strong>Accountant reviews</strong><br />
+              <span class="text-muted small">The request starts as pending.</span>
+            </span>
+          </li>
+          <li>
+            <span class="step-number">3</span>
+            <span>
+              <strong>Status update</strong><br />
+              <span class="text-muted small">You receive confirmation or follow-up.</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </aside>
   </div>
 </div>
 
@@ -170,20 +202,26 @@
   const timeSelect = document.querySelector("#id_appointment_time");
 
   function resetTimeOptions() {
+    if (!timeSelect) {
+      return;
+    }
+
     for (const option of timeSelect.options) {
       option.disabled = false;
       option.textContent = option.textContent.replace(" (Booked)", "");
     }
   }
 
-  dateInput.addEventListener("change", async function () {
+  async function refreshBookedTimes() {
     resetTimeOptions();
 
-    if (!dateInput.value) {
+    if (!dateInput?.value || !timeSelect) {
       return;
     }
 
-    const response = await fetch(`/booked-times/?date=${dateInput.value}`);
+    const response = await fetch(
+      `{% url 'booked_times' %}?date=${encodeURIComponent(dateInput.value)}`
+    );
     const data = await response.json();
 
     for (const option of timeSelect.options) {
@@ -196,7 +234,9 @@
     if (timeSelect.selectedOptions[0]?.disabled) {
       timeSelect.value = "";
     }
-  });
+  }
+
+  dateInput?.addEventListener("change", refreshBookedTimes);
 </script>
 
 <script>
@@ -205,7 +245,7 @@
   const serviceDetails = document.querySelectorAll(".service-detail");
 
   function showSelectedServiceDetails() {
-    const selectedServiceId = serviceSelect.value;
+    const selectedServiceId = serviceSelect?.value;
     let hasSelectedService = false;
 
     serviceDetails.forEach((detail) => {
@@ -217,14 +257,10 @@
       }
     });
 
-    if (hasSelectedService) {
-      serviceDetailsBox.classList.remove("d-none");
-    } else {
-      serviceDetailsBox.classList.add("d-none");
-    }
+    serviceDetailsBox?.classList.toggle("d-none", !hasSelectedService);
   }
 
-  serviceSelect.addEventListener("change", showSelectedServiceDetails);
+  serviceSelect?.addEventListener("change", showSelectedServiceDetails);
   showSelectedServiceDetails();
 </script>
 {% endblock %}

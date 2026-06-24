@@ -5,78 +5,105 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BookBookGo</title>
+    <title>{% block title %}BookBookGo{% endblock %}</title>
 
-    <!-- Bootstrap-->
     <link
       rel="stylesheet"
       href="{% static 'bootstrap/css/bootstrap.min.css' %}"
     />
-    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml" />
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+    <script
+      src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"
+      defer
+    ></script>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="{% url 'home' %}"> BookBookGo </a>
+    <div class="app-shell">
+      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+        <div class="container">
+          <a
+            class="navbar-brand d-inline-flex align-items-center gap-2 fw-bold"
+            href="{% url 'home' %}"
+            aria-label="BookBookGo home"
+          >
+            <span class="brand-mark" aria-hidden="true">BB</span>
+            <span>BookBookGo</span>
+          </a>
 
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#mainNavbar"
-          aria-controls="mainNavbar"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
 
-        <div class="collapse navbar-collapse" id="mainNavbar">
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'home' %}">Home</a>
-            </li>
+          <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a
+                  class="nav-link px-3 {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                  href="{% url 'home' %}"
+                  {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
+                >
+                  Home
+                </a>
+              </li>
 
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-            </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link px-3 {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'appointment_detail' %}active{% endif %}"
+                  href="{% url 'dashboard' %}"
+                  {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'appointment_detail' %}aria-current="page"{% endif %}
+                >
+                  Dashboard
+                </a>
+              </li>
 
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'appointment_create' %}">
-                Book Appointment
-              </a>
-            </li>
+              <li class="nav-item ms-lg-2">
+                <a
+                  class="btn btn-primary {% if request.resolver_match.url_name == 'appointment_create' %}active{% endif %}"
+                  href="{% url 'appointment_create' %}"
+                >
+                  Book Appointment
+                </a>
+              </li>
 
-            <li class="nav-item">
-              <a class="nav-link" href="/admin/">Admin</a>
-            </li>
-          </ul>
+              <li class="nav-item">
+                <a class="nav-link px-3" href="/admin/">Admin</a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
-    <!-- FLASH MESSAGES -->
-    {% if messages %}
-    <div class="container mt-3">
-      {% for message in messages %}
-      <div
-        class="alert alert-{{ message.tags }} alert-dismissible fade show"
-        role="alert"
-      >
-        {{ message }}
+      <main class="site-main">
+        {% if messages %}
+        <div class="container mt-3">
+          {% for message in messages %}
+          <div
+            class="alert alert-{{ message.tags }} alert-dismissible fade show"
+            role="alert"
+          >
+            {{ message }}
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
 
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-      {% endfor %}
+        {% block content %}{% endblock %}
+      </main>
     </div>
-    {% endif %}
-
-    <!-- Content -->
-    {% block content %} {% endblock %}
   </body>
 </html>

@@ -1,45 +1,51 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+
+{% block title %}Appointment Request Sent | BookBookGo{% endblock %}
+
+{% block content %}
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      <div class="border rounded-3 p-4 bg-light">
-        <h1 class="h3 mb-3 text-center">Appointment Request Sent</h1>
+    <div class="col-md-9 col-lg-7">
+      <section class="success-panel text-center">
+        <span class="success-icon mb-3" aria-hidden="true">&#10003;</span>
+        <p class="eyebrow mb-2">Request sent</p>
+        <h1 class="display-6 fw-bold mb-3">We received your appointment.</h1>
 
-        <p class="text-center mb-4">
-          Thank you, {{ appointment.full_name }}. Your request has been
-          received.
+        <p class="text-muted mb-4">
+          Thank you, {{ appointment.full_name }}. The accountant will review the
+          request and contact you when the appointment is confirmed.
         </p>
 
-        <ul class="list-group mb-4">
-          <li class="list-group-item d-flex justify-content-between">
+        <ul class="summary-list text-start mb-4">
+          <li>
             <strong>Service</strong>
             <span>{{ appointment.service.name }}</span>
           </li>
-          <li class="list-group-item d-flex justify-content-between">
+          <li>
             <strong>Date</strong>
             <span>{{ appointment.appointment_date }}</span>
           </li>
-          <li class="list-group-item d-flex justify-content-between">
+          <li>
             <strong>Time</strong>
             <span>{{ appointment.appointment_time|time:"g:i A" }}</span>
           </li>
-          <li class="list-group-item d-flex justify-content-between">
+          <li>
             <strong>Status</strong>
-            <span>{{ appointment.get_status_display }}</span>
+            <span class="badge {{ appointment.get_status_badge_class }}">
+              {{ appointment.get_status_display }}
+            </span>
           </li>
         </ul>
 
-        <p class="small text-muted text-center">
-          We will review your details and contact you to confirm the
-          appointment.
-        </p>
-
-        <div class="text-center">
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
           <a href="{% url 'appointment_create' %}" class="btn btn-primary">
             Book Another Appointment
           </a>
+          <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            Back Home
+          </a>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </div>

@@ -21,8 +21,14 @@ class AppointmentForm(forms.ModelForm):
 
         widgets = {
             "appointment_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
-            "appointment_time": forms.Select(attrs={"class": "form-control"}),
-            "message": forms.Textarea(attrs={"rows": 4, "class": "form-control"}),
+            "appointment_time": forms.Select(attrs={"class": "form-select"}),
+            "message": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "class": "form-control",
+                    "placeholder": "Tell us what you want to review, any deadlines, and useful business context.",
+                }
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -30,9 +36,16 @@ class AppointmentForm(forms.ModelForm):
 
         self.fields["service"].queryset = Service.objects.filter(is_active=True)
         self.fields["appointment_date"].widget.attrs["min"] = timezone.localdate().isoformat()
+        self.fields["full_name"].widget.attrs["placeholder"] = "Your full name"
+        self.fields["email"].widget.attrs["placeholder"] = "you@example.com"
+        self.fields["phone"].widget.attrs["placeholder"] = "(555) 123-4567"
+        self.fields["business_name"].widget.attrs["placeholder"] = "Optional"
 
-        for field in self.fields.values():
-            field.widget.attrs.setdefault("class", "form-control")
+        for name, field in self.fields.items():
+            if name in {"service", "appointment_time", "business_type"}:
+                field.widget.attrs.setdefault("class", "form-select")
+            else:
+                field.widget.attrs.setdefault("class", "form-control")
 
     def clean(self):
         cleaned_data = super().clean()

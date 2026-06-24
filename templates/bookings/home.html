@@ -1,53 +1,121 @@
 {% extends 'base.html' %}
+{% load static %}
 
-<!-- Content -->
+{% block title %}BookBookGo | Accounting Consultation Booking{% endblock %}
+
 {% block content %}
-<section class="py-5">
+<section class="hero-section">
   <div class="container">
     <div class="row align-items-center g-5">
-      <div class="col-lg-7">
-        <p class="text-primary fw-semibold mb-2">Accounting Consultation</p>
-        <h1 class="display-5 fw-bold mb-3">
-          Book a consultation for your taxes, payroll, or business finances.
-        </h1>
-        <p class="lead text-muted mb-4">
-          Schedule a time with an accountant and tell us what you need help
-          with. We will review your request and confirm your appointment.
-        </p>
+      <div class="col-lg-6">
+        <div class="hero-copy">
+          <p class="eyebrow mb-3">Accounting appointments</p>
+          <h1 class="hero-title fw-bold mb-4">
+            BookBookGo accounting consultations
+          </h1>
+          <p class="lead text-muted mb-4">
+            Request time with an accountant for taxes, payroll, bookkeeping, or
+            business finance. Share the details once and get a reviewed
+            appointment request.
+          </p>
 
-        <a href="{% url 'appointment_create' %}" class="btn btn-primary btn-lg">
-          Book an Appointment
-        </a>
+          <div class="hero-actions mb-4">
+            <a href="{% url 'appointment_create' %}" class="btn btn-primary btn-lg">
+              Book Appointment
+            </a>
+            <a href="#services" class="btn btn-soft btn-lg">View Services</a>
+          </div>
+
+          <div class="hero-proof">
+            <div class="proof-item">
+              <span class="proof-value">7</span>
+              <span class="small text-muted">weekday time slots</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-value">24h</span>
+              <span class="small text-muted">review target</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-value">1</span>
+              <span class="small text-muted">simple request form</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="col-lg-5">
-        <div class="border rounded-3 p-4 bg-light">
-          <h2 class="h5 mb-3">Services</h2>
+      <div class="col-lg-6">
+        <div class="hero-media">
+          <img
+            class="hero-photo"
+            src="{% static 'images/consultation-hero.png' %}"
+            alt="Accounting consultation desk with calendar, laptop, and financial planning materials"
+          />
 
-          <div class="d-grid gap-3">
-            {% for service in services %}
-            <div class="border-bottom pb-3">
-              <div class="d-flex justify-content-between gap-3">
-                <h3 class="h6 mb-1">{{ service.name }}</h3>
-
-                {% if service.price %}
-                <span class="fw-semibold">${{ service.price }}</span>
-                {% endif %}
+          <div class="availability-card">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+              <div>
+                <p class="section-kicker mb-1">Available windows</p>
+                <h2 class="h6 mb-0">Weekday consultations</h2>
               </div>
-
-              {% if service.description %}
-              <p class="text-muted small mb-1">{{ service.description }}</p>
-              {% endif %}
-
-              <p class="small mb-0">{{ service.duration_minutes }} minutes</p>
+              <span class="meta-pill price">From $100</span>
             </div>
-            {% empty %}
-            <p class="text-muted mb-0">No services are currently available.</p>
-            {% endfor %}
+
+            <div class="slot-list" aria-label="Common appointment times">
+              <span class="slot-pill">9:00 AM</span>
+              <span class="slot-pill">10:00 AM</span>
+              <span class="slot-pill">11:00 AM</span>
+              <span class="slot-pill">1:00 PM</span>
+              <span class="slot-pill">2:00 PM</span>
+              <span class="slot-pill">4:00 PM</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="section-block" id="services">
+  <div class="container">
+    <div class="section-heading mb-4">
+      <p class="eyebrow mb-2">Services</p>
+      <h2 class="display-6 fw-bold mb-3">Choose the support you need.</h2>
+      <p class="text-muted mb-0">
+        Each appointment request includes the service, preferred date and time,
+        contact details, and a short note for the accountant.
+      </p>
+    </div>
+
+    {% if services %}
+    <div class="service-grid">
+      {% for service in services %}
+      <article class="service-card">
+        <div class="d-flex justify-content-between gap-3 mb-3">
+          <h3 class="h5 mb-0">{{ service.name }}</h3>
+          {% if service.price %}
+          <span class="meta-pill price">${{ service.price }}</span>
+          {% endif %}
+        </div>
+
+        {% if service.description %}
+        <p class="text-muted mb-3">{{ service.description }}</p>
+        {% endif %}
+
+        <div class="service-meta">
+          <span class="meta-pill">{{ service.duration_minutes }} minutes</span>
+          <a href="{% url 'appointment_create' %}" class="meta-pill text-decoration-none">
+            Request
+          </a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="panel empty-state">
+      <h3 class="h5 mb-2">No services are currently available.</h3>
+      <p class="text-muted mb-0">Please check back soon.</p>
+    </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
