@@ -8,7 +8,7 @@ def send_client_appointment_received_email(appointment):
         message=(
             f"Hi {appointment.full_name},\n\n"
             f"We received your appointment request.\n\n"
-            f"Service: {appointment.get_service_display()}\n"
+            f"Service: {appointment.service.name}\n"
             f"Date: {appointment.appointment_date}\n"
             f"Time: {appointment.appointment_time.strftime('%I:%M %p')}\n\n"
             "We will contact you after reviewing your request."
@@ -26,7 +26,7 @@ def send_accountant_new_appointment_email(appointment):
             f"Client: {appointment.full_name}\n"
             f"Email: {appointment.email}\n"
             f"Phone: {appointment.phone}\n"
-            f"Service: {appointment.get_service_display()}\n"
+            f"Service: {appointment.service.name}\n"
             f"Date: {appointment.appointment_date}\n"
             f"Time: {appointment.appointment_time.strftime('%I:%M %p')}\n"
             f"Business: {appointment.business_name or 'Not provided'}\n"
@@ -65,7 +65,7 @@ def send_client_status_update_email(appointment):
         message=(
             f"Hi {appointment.full_name},\n\n"
             f"{intro}\n\n"
-            f"Service: {appointment.get_service_display()}\n"
+            f"Service: {appointment.service.name}\n"
             f"Date: {appointment.appointment_date}\n"
             f"Time: {appointment.appointment_time.strftime('%I:%M %p')}\n\n"
             f"{closing}"

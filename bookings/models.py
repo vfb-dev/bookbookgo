@@ -2,6 +2,16 @@ from django.db import models
 from datetime import time
 
 # Create your models here.
+class Service(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    duration_minutes = models.PositiveIntegerField(default=60)
+    price = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
 class Appointment(models.Model):
 
     class Meta:
@@ -46,7 +56,7 @@ class Appointment(models.Model):
         ("completed", "Completed"),
     ]
 
-    service = models.CharField(max_length=50, choices=SERVICE_CHOICES)
+    service = models.ForeignKey(Service, on_delete=models.PROTECT)
     appointment_date = models.DateField()
     appointment_time = models.TimeField(choices=TIME_CHOICES)
     full_name = models.CharField(max_length=120)

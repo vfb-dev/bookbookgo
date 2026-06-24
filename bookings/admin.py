@@ -1,7 +1,13 @@
 from django.contrib import admin
-from .models import Appointment
+from .models import Appointment, Service
 
 # Register your models here.
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ("name", "duration_minutes", "price", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("name",)
+
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = (

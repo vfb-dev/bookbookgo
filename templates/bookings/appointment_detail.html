@@ -8,7 +8,7 @@
       <h1 class="h3 mb-1">{{ appointment.full_name }}</h1>
       <!-- prettier-ignore -->
       <p class="text-muted mb-0">
-        {{ appointment.get_service_display }} •
+        {{ appointment.service.name }} •
         {{ appointment.appointment_date }} at
         {{ appointment.appointment_time|time:"g:i A" }}
       </p>
@@ -51,7 +51,7 @@
 
         <dl class="row mb-0">
           <dt class="col-sm-5">Service</dt>
-          <dd class="col-sm-7">{{ appointment.get_service_display }}</dd>
+          <dd class="col-sm-7">{{ appointment.service.name }}</dd>
 
           <dt class="col-sm-5">Date</dt>
           <dd class="col-sm-7">{{ appointment.appointment_date }}</dd>
