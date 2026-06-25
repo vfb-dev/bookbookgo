@@ -107,13 +107,13 @@ class AppointmentCreateView(View):
             send_client_appointment_received_email(appointment)
             send_accountant_new_appointment_email(appointment)
 
-            return redirect("appointment_success", pk=appointment.pk)
+            return redirect("appointment_success", token=appointment.public_token)
 
         return render(request, "bookings/appointment_form.html", {"form": form, "services": Service.objects.filter(is_active=True)})
     
 class AppointmentSuccessView(View):
-    def get(self, request, pk):
-        appointment = get_object_or_404(Appointment, pk=pk)
+    def get(self, request, token):
+        appointment = get_object_or_404(Appointment, public_token=token)
         return render(
             request,
             "bookings/appointment_success.html",

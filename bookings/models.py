@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from datetime import time
 
@@ -67,6 +68,7 @@ class Appointment(models.Model):
     message = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
+    public_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     def get_status_badge_class(self):
         badge_classes = {

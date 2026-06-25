@@ -6,6 +6,6 @@ urlpatterns = [
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("dashboard/appointments/<int:pk>/", AppointmentDetailView.as_view(), name="appointment_detail"),
     path('book/', AppointmentCreateView.as_view(), name="appointment_create"),
-    path("booking/success/<int:pk>/", AppointmentSuccessView.as_view(), name="appointment_success"),
+    path("booking/success/<uuid:token>/", AppointmentSuccessView.as_view(), name="appointment_success"),
     path("booked-times/", BookedTimesView.as_view(), name="booked_times"),
 ]
