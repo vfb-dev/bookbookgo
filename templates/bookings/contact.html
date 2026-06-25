@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact | BookBookGo{% endblock %}
+
+{% block content %}
+<section class="contact-section">
+  <div class="container">
+    <div class="contact-layout">
+      <div class="contact-copy">
+        <p class="eyebrow mb-3">Contact</p>
+        <h1 class="display-5 fw-bold mb-3">Talk with BookBookGo.</h1>
+        <p class="lead text-muted mb-4">
+          Questions about appointments, services, or an existing request? Reach
+          the team directly and we will help you keep things moving.
+        </p>
+
+        <div class="contact-actions">
+          <a href="{% url 'appointment_create' %}" class="btn btn-primary">
+            Book Appointment
+          </a>
+          <a href="mailto:hello@bookbookgo.com" class="btn btn-soft">
+            Send Email
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-details">
+        <section class="contact-group" aria-labelledby="contact-phone-heading">
+          <div>
+            <p class="section-kicker mb-1">Phones</p>
+            <h2 class="h5 mb-0" id="contact-phone-heading">Call the team</h2>
+          </div>
+
+          <ul class="contact-list">
+            {% for phone in phones %}
+            <li class="contact-row">
+              <span>
+                <span class="contact-label">{{ phone.label }}</span>
+                <span class="small text-muted">{{ phone.note }}</span>
+              </span>
+              <a class="contact-link" href="tel:{{ phone.href }}">
+                {{ phone.display }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+
+        <section class="contact-group" aria-labelledby="contact-email-heading">
+          <div>
+            <p class="section-kicker mb-1">Email</p>
+            <h2 class="h5 mb-0" id="contact-email-heading">Write to us</h2>
+          </div>
+
+          <ul class="contact-list">
+            {% for email in emails %}
+            <li class="contact-row">
+              <span>
+                <span class="contact-label">{{ email.label }}</span>
+                <span class="small text-muted">{{ email.note }}</span>
+              </span>
+              <a class="contact-link" href="mailto:{{ email.address }}">
+                {{ email.address }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+
+        <section class="contact-group" aria-labelledby="contact-social-heading">
+          <div>
+            <p class="section-kicker mb-1">Social media</p>
+            <h2 class="h5 mb-0" id="contact-social-heading">Follow along</h2>
+          </div>
+
+          <div class="social-grid">
+            {% for social in social_links %}
+            <a class="social-link" href="{{ social.url }}" target="_blank" rel="noopener">
+              <span class="contact-label">{{ social.name }}</span>
+              <span class="small text-muted">{{ social.handle }}</span>
+            </a>
+            {% endfor %}
+          </div>
+        </section>
+
+        <p class="contact-note text-muted mb-0">
+          Office hours: {{ office_hours }}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

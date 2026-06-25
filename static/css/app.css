@@ -223,6 +223,104 @@ a:hover {
   max-width: 720px;
 }
 
+.contact-section {
+  padding: 4rem 0;
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.contact-copy {
+  max-width: 560px;
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.contact-details {
+  display: grid;
+  gap: 1rem;
+}
+
+.contact-group {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.contact-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-row,
+.social-link,
+.contact-note {
+  border: 1px solid var(--bbg-line);
+  border-radius: var(--bbg-radius);
+  background: #ffffff;
+  box-shadow: var(--bbg-shadow);
+}
+
+.contact-row {
+  display: flex;
+  min-height: 86px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.contact-label {
+  display: block;
+  margin-bottom: 0.18rem;
+  color: var(--bbg-ink);
+  font-weight: 800;
+}
+
+.contact-link {
+  color: var(--bbg-primary-dark);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.contact-link:hover {
+  text-decoration: underline;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.social-link {
+  min-height: 104px;
+  padding: 1rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.social-link:hover {
+  border-color: rgba(15, 118, 110, 0.42);
+  color: inherit;
+  transform: translateY(-1px);
+}
+
+.contact-note {
+  padding: 1rem;
+}
+
 .service-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -529,6 +627,7 @@ textarea.form-control {
     min-height: 360px;
   }
 
+  .contact-layout,
   .service-grid,
   .stats-grid,
   .booking-layout {
@@ -541,6 +640,10 @@ textarea.form-control {
 }
 
 @media (max-width: 767.98px) {
+  .contact-section {
+    padding: 3rem 0;
+  }
+
   .hero-proof {
     grid-template-columns: 1fr;
   }
@@ -557,6 +660,15 @@ textarea.form-control {
 
   .slot-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .social-grid {
+    grid-template-columns: 1fr;
   }
 
   .booking-panel,

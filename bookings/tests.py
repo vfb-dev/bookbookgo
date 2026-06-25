@@ -98,3 +98,14 @@ class AppointmentFormTests(TestCase):
 
         self.assertIn(self.service, form.fields["service"].queryset)
         self.assertNotIn(inactive_service, form.fields["service"].queryset)
+
+
+class ContactPageTests(TestCase):
+    def test_contact_page_loads(self):
+        response = self.client.get("/contact/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "bookings/contact.html")
+        self.assertContains(response, "+1 (555) 016-2040")
+        self.assertContains(response, "hello@bookbookgo.com")
+        self.assertContains(response, "Instagram")

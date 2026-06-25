@@ -31,6 +31,45 @@ class HomeView(View):
             {"services": services},
         )
     
+class ContactView(View):
+    def get(self, request):
+        contact_context = {
+            "phones": [
+                {
+                    "label": "Main office",
+                    "display": "+1 (555) 016-2040",
+                    "href": "+15550162040",
+                    "note": "Appointments and general questions",
+                },
+                {
+                    "label": "Client support",
+                    "display": "+1 (555) 018-3270",
+                    "href": "+15550183270",
+                    "note": "Existing bookings and rescheduling",
+                },
+            ],
+            "emails": [
+                {
+                    "label": "General email",
+                    "address": "hello@bookbookgo.com",
+                    "note": "Questions before you book",
+                },
+                {
+                    "label": "Support email",
+                    "address": "support@bookbookgo.com",
+                    "note": "Help with an appointment request",
+                },
+            ],
+            "social_links": [
+                {"name": "Instagram", "handle": "@bookbookgo", "url": "https://www.instagram.com/bookbookgo/"},
+                {"name": "Facebook", "handle": "BookBookGo", "url": "https://www.facebook.com/bookbookgo/"},
+                {"name": "LinkedIn", "handle": "BookBookGo", "url": "https://www.linkedin.com/company/bookbookgo/"},
+            ],
+            "office_hours": "Monday to Friday, 9:00 AM - 5:00 PM",
+        }
+
+        return render(request, "bookings/contact.html", contact_context)
+
 class DashboardView(LoginRequiredMixin, View):
     login_url = "/admin/login/"
 
