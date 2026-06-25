@@ -55,6 +55,7 @@
                 </a>
               </li>
 
+              {% if request.user.is_authenticated %}
               <li class="nav-item">
                 <a
                   class="nav-link px-3 {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'appointment_detail' %}active{% endif %}"
@@ -64,6 +65,7 @@
                   Dashboard
                 </a>
               </li>
+              {% endif %}
 
               <li class="nav-item ms-lg-2">
                 <a
@@ -74,9 +76,11 @@
                 </a>
               </li>
 
+              {% if request.user.is_staff %}
               <li class="nav-item">
                 <a class="nav-link px-3" href="/admin/">Admin</a>
               </li>
+              {% endif %}
             </ul>
           </div>
         </div>
