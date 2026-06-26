@@ -693,3 +693,59 @@ footer a {
 footer a:hover {
   color: var(--bs-primary) !important;
 }
+.mobile-drawer {
+  width: min(82vw, 320px);
+  max-width: 320px;
+  height: 100vh;
+  min-height: 100vh;
+  color: var(--bbg-ink);
+  background: #ffffff;
+  box-shadow: 0 24px 64px rgba(23, 32, 42, 0.18);
+}
+
+.mobile-drawer.offcanvas {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 1045;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+}
+
+.mobile-drawer.offcanvas.show,
+.mobile-drawer.offcanvas.showing {
+  visibility: visible;
+}
+
+.mobile-drawer .offcanvas-header {
+  min-height: 72px;
+  flex: 0 0 auto;
+  background: #ffffff;
+}
+
+.mobile-drawer .offcanvas-body {
+  flex: 1 1 auto;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.drawer-link {
+  display: block;
+  border-radius: var(--bbg-radius);
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+}
+
+.drawer-link.active {
+  color: var(--bbg-primary-dark);
+  background: rgba(15, 118, 110, 0.1);
+}
+
+@media (min-width: 992px) {
+  .mobile-drawer,
+  .mobile-drawer.offcanvas {
+    display: none;
+  }
+}
