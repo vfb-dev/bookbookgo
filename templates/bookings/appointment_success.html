@@ -42,7 +42,7 @@
           <a href="{% url 'appointment_reschedule' appointment.public_token %}" class="btn btn-primary">
             Reschedule
           </a>
-          <form method="post" action="{% url 'appointment_cancel' appointment.public_token %}">
+          <form method="post" action="{% url 'appointment_cancel' appointment.public_token %}" class="d-grid">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-danger">
               Cancel
