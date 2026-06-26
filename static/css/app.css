@@ -372,7 +372,7 @@ a:hover {
   padding: 1.25rem;
 }
 
-.booking-form-section + .booking-form-section {
+.booking-form-section+.booking-form-section {
   margin-top: 1.35rem;
   padding-top: 1.35rem;
   border-top: 1px solid var(--bbg-line);
@@ -504,7 +504,7 @@ textarea.form-control {
   margin-bottom: 0;
 }
 
-.table > :not(caption) > * > * {
+.table> :not(caption)>*>* {
   padding: 1rem;
 }
 
@@ -681,7 +681,15 @@ textarea.form-control {
     align-items: start;
   }
 
-  .table > :not(caption) > * > * {
+  .table> :not(caption)>*>* {
     padding: 0.8rem;
   }
+}
+
+footer a {
+  transition: color 0.2s ease;
+}
+
+footer a:hover {
+  color: var(--bs-primary) !important;
 }
