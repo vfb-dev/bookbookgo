@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from .forms import AppointmentForm
-from .models import Appointment, Service
+from .models import Appointment, AvailabilityRule, BlockedDate, Service
 
 # Create your tests here.
 class AppointmentFormTests(TestCase):
@@ -85,6 +85,56 @@ class AppointmentFormTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn("appointment_time", form.errors)
+
+    def test_cancelled_time_slot_can_be_reused(self):
+        data = self.valid_form_data()
+
+        Appointment.objects.create(
+            service=self.service,
+            appointment_date=data["appointment_date"],
+            appointment_time=data["appointment_time"],
+            full_name="Cancelled Client",
+            email="cancelled@example.com",
+            phone="21111111111",
+            business_name="Cancelled Co",
+            business_type="small_business",
+            message="Cancelled booking.",
+            status="cancelled",
+        )
+
+        form = AppointmentForm(data=data)
+
+        self.assertTrue(form.is_valid())
+
+    def test_blocked_date_is_invalid(self):
+        data = self.valid_form_data()
+        BlockedDate.objects.create(
+            date=data["appointment_date"],
+            reason="Holiday",
+        )
+
+        form = AppointmentForm(data=data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("appointment_date", form.errors)
+
+    def test_saturday_can_be_available_with_rule(self):
+        saturday = timezone.localdate()
+
+        while saturday.weekday() != 5:
+            saturday += timedelta(days=1)
+
+        AvailabilityRule.objects.create(
+            weekday=5,
+            start_time=time(9, 0),
+            end_time=time(12, 0),
+            slot_duration_minutes=60,
+            is_active=True,
+        )
+
+        form = AppointmentForm(data=self.valid_form_data(appointment_date=saturday))
+
+        self.assertTrue(form.is_valid())
 
     def test_inactive_services_are_not_in_form_queryset(self):
         inactive_service = Service.objects.create(

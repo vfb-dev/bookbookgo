@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Reschedule Appointment | BookBookGo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-9 col-lg-7">
+      <section class="booking-panel">
+        <p class="eyebrow mb-2">Reschedule request</p>
+        <h1 class="display-6 fw-bold mb-3">Choose a new appointment time.</h1>
+
+        <ul class="summary-list mb-4">
+          <li>
+            <strong>Service</strong>
+            <span>{{ appointment.service.name }}</span>
+          </li>
+          <li>
+            <strong>Current date</strong>
+            <span>{{ appointment.appointment_date }}</span>
+          </li>
+          <li>
+            <strong>Current time</strong>
+            <span>{{ appointment.appointment_time|time:"g:i A" }}</span>
+          </li>
+        </ul>
+
+        <form method="post">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.appointment_date.id_for_label }}">
+                New date
+              </label>
+              {{ form.appointment_date }}
+              {{ form.appointment_date.errors }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="{{ form.appointment_time.id_for_label }}">
+                New time
+              </label>
+              {{ form.appointment_time }}
+              {{ form.appointment_time.errors }}
+            </div>
+          </div>
+
+          <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              Save New Time
+            </button>
+            <a href="{% url 'appointment_success' appointment.public_token %}" class="btn btn-outline-secondary">
+              Keep Current Time
+            </a>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+  const dateInput = document.querySelector("#id_appointment_date");
+  const timeSelect = document.querySelector("#id_appointment_time");
+  const excludeToken = "{{ appointment.public_token }}";
+
+  function setTimePlaceholder(label) {
+    if (!timeSelect) {
+      return;
+    }
+
+    timeSelect.innerHTML = "";
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = label;
+    timeSelect.appendChild(option);
+  }
+
+  async function refreshAvailableTimes() {
+    if (!dateInput?.value || !timeSelect) {
+      setTimePlaceholder("Select a date first");
+      return;
+    }
+
+    const selectedTime = timeSelect.value;
+    setTimePlaceholder("Loading times...");
+
+    const response = await fetch(
+      `{% url 'booked_times' %}?date=${encodeURIComponent(dateInput.value)}&exclude_token=${excludeToken}`
+    );
+    const data = await response.json();
+
+    setTimePlaceholder(
+      data.available_times.length ? "Select a time" : "No available times"
+    );
+
+    for (const slot of data.available_times) {
+      const option = document.createElement("option");
+      option.value = slot.value;
+      option.textContent = slot.label;
+      option.selected = slot.value === selectedTime;
+      timeSelect.appendChild(option);
+    }
+  }
+
+  dateInput?.addEventListener("change", refreshAvailableTimes);
+</script>
+{% endblock %}

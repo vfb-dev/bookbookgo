@@ -1,10 +1,140 @@
+from datetime import datetime, timedelta
+
 from django.utils import timezone
 
 from django import forms
-from .models import Appointment, Service
+from .models import Appointment, AvailabilityRule, BlockedDate, Service
 
 
-class AppointmentForm(forms.ModelForm):
+def get_available_time_choices(appointment_date, exclude_appointment=None):
+    if not appointment_date:
+        return []
+
+    if BlockedDate.objects.filter(date=appointment_date).exists():
+        return []
+
+    rules = AvailabilityRule.objects.filter(
+        weekday=appointment_date.weekday(),
+        is_active=True,
+    )
+
+    if rules.exists():
+        slots = []
+
+        for rule in rules:
+            current = datetime.combine(appointment_date, rule.start_time)
+            end = datetime.combine(appointment_date, rule.end_time)
+            step = timedelta(minutes=rule.slot_duration_minutes)
+
+            while current + step <= end:
+                slots.append(current.time())
+                current += step
+    elif appointment_date.weekday() < 5:
+        slots = [value for value, _label in Appointment.TIME_CHOICES]
+    else:
+        slots = []
+
+    booked_times = Appointment.objects.filter(
+        appointment_date=appointment_date,
+    ).exclude(status="cancelled")
+
+    if exclude_appointment and exclude_appointment.pk:
+        booked_times = booked_times.exclude(pk=exclude_appointment.pk)
+
+    booked_times = set(booked_times.values_list("appointment_time", flat=True))
+    open_slots = sorted(set(slots) - booked_times)
+
+    return [(slot, slot.strftime("%I:%M %p").lstrip("0")) for slot in open_slots]
+
+
+class AppointmentAvailabilityMixin:
+    appointment_date_field = "appointment_date"
+    appointment_time_field = "appointment_time"
+
+    def configure_time_choices(self):
+        appointment_date = self._selected_appointment_date()
+        choices = get_available_time_choices(
+            appointment_date,
+            exclude_appointment=self.instance,
+        )
+
+        if not appointment_date:
+            placeholder = "Select a date first"
+        elif choices:
+            placeholder = "Select a time"
+        else:
+            placeholder = "No available times"
+
+        self.fields[self.appointment_time_field].widget = forms.Select(
+            attrs={"class": "form-select"}
+        )
+        self.fields[self.appointment_time_field].choices = [("", placeholder)] + choices
+
+    def _selected_appointment_date(self):
+        field_name = self.appointment_date_field
+
+        if self.is_bound:
+            raw_date = self.data.get(self.add_prefix(field_name))
+
+            if raw_date:
+                if hasattr(raw_date, "weekday"):
+                    return raw_date
+
+                try:
+                    return datetime.strptime(raw_date, "%Y-%m-%d").date()
+                except ValueError:
+                    return None
+
+        return getattr(self.instance, field_name, None)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        appointment_date = cleaned_data.get(self.appointment_date_field)
+        appointment_time = cleaned_data.get(self.appointment_time_field)
+
+        if appointment_date and appointment_date < timezone.localdate():
+            self.add_error(
+                self.appointment_date_field,
+                "Please choose today or a future date."
+            )
+
+        if appointment_date and BlockedDate.objects.filter(date=appointment_date).exists():
+            self.add_error(
+                self.appointment_date_field,
+                "Appointments are not available on this date."
+            )
+
+        if (
+            appointment_date
+            and appointment_date.weekday() >= 5
+            and not AvailabilityRule.objects.filter(
+                weekday=appointment_date.weekday(),
+                is_active=True,
+            ).exists()
+        ):
+            self.add_error(
+                self.appointment_date_field,
+                "Appointments are not available on this day."
+            )
+
+        if appointment_date and appointment_time:
+            available_times = {
+                value for value, _label in get_available_time_choices(
+                    appointment_date,
+                    exclude_appointment=self.instance,
+                )
+            }
+
+            if appointment_time not in available_times:
+                self.add_error(
+                    self.appointment_time_field,
+                    "This appointment time is not available. Please choose another time."
+                )
+
+        return cleaned_data
+
+
+class AppointmentForm(AppointmentAvailabilityMixin, forms.ModelForm):
     class Meta:
         model = Appointment
         fields = [
@@ -47,37 +177,9 @@ class AppointmentForm(forms.ModelForm):
             else:
                 field.widget.attrs.setdefault("class", "form-control")
 
-    def clean(self):
-        cleaned_data = super().clean()
-        appointment_date = cleaned_data.get("appointment_date")
-        appointment_time = cleaned_data.get("appointment_time")
-
-        if appointment_date and appointment_date < timezone.localdate():
-            self.add_error(
-                "appointment_date",
-                "Please choose today or a future date."
-            )
-
-        if appointment_date and appointment_date.weekday() >= 5:
-            self.add_error(
-                "appointment_date",
-                "Appointments are only available Monday through Friday."
-            )
-
-        if appointment_date and appointment_time:
-            appointment_exists = Appointment.objects.filter(
-                appointment_date=appointment_date,
-                appointment_time=appointment_time,
-            ).exists()
-
-            if appointment_exists:
-                self.add_error(
-                    "appointment_time",
-                    "This appointment time is already booked. Please choose another time."
-                )
-
-        return cleaned_data
+        self.configure_time_choices()
     
+
 class AppointmentStatusForm(forms.ModelForm):
     class Meta:
         model = Appointment
@@ -86,3 +188,18 @@ class AppointmentStatusForm(forms.ModelForm):
         widgets = {
             "status": forms.Select(attrs={"class": "form-select"}),
         }
+
+
+class AppointmentRescheduleForm(AppointmentAvailabilityMixin, forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ["appointment_date", "appointment_time"]
+
+        widgets = {
+            "appointment_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["appointment_date"].widget.attrs["min"] = timezone.localdate().isoformat()
+        self.configure_time_choices()

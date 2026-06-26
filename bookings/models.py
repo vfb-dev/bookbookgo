@@ -1,8 +1,10 @@
 import uuid
-from django.db import models
 from datetime import time
 
-# Create your models here.
+from django.db import models
+from django.db.models import Q
+
+
 class Service(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -13,12 +15,63 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
+
+class AvailabilityRule(models.Model):
+    WEEKDAY_CHOICES = [
+        (0, "Monday"),
+        (1, "Tuesday"),
+        (2, "Wednesday"),
+        (3, "Thursday"),
+        (4, "Friday"),
+        (5, "Saturday"),
+        (6, "Sunday"),
+    ]
+
+    weekday = models.PositiveSmallIntegerField(choices=WEEKDAY_CHOICES)
+    start_time = models.TimeField(default=time(9, 0))
+    end_time = models.TimeField(default=time(17, 0))
+    slot_duration_minutes = models.PositiveIntegerField(default=60)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["weekday", "start_time"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["weekday", "start_time", "end_time"],
+                name="unique_availability_rule",
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.get_weekday_display()} "
+            f"{self.start_time.strftime('%I:%M %p')} - "
+            f"{self.end_time.strftime('%I:%M %p')}"
+        )
+
+
+class BlockedDate(models.Model):
+    date = models.DateField(unique=True)
+    reason = models.CharField(max_length=160, blank=True)
+
+    class Meta:
+        ordering = ["date"]
+
+    def __str__(self):
+        if self.reason:
+            return f"{self.date} - {self.reason}"
+
+        return str(self.date)
+
+
 class Appointment(models.Model):
 
     class Meta:
+        ordering = ["appointment_date", "appointment_time"]
         constraints = [
             models.UniqueConstraint(
                 fields=["appointment_date", "appointment_time"],
+                condition=~Q(status="cancelled"),
                 name="unique_appointment_slot",
             )
         ]
@@ -59,7 +112,7 @@ class Appointment(models.Model):
 
     service = models.ForeignKey(Service, on_delete=models.PROTECT)
     appointment_date = models.DateField()
-    appointment_time = models.TimeField(choices=TIME_CHOICES)
+    appointment_time = models.TimeField()
     full_name = models.CharField(max_length=120)
     email = models.EmailField()
     phone = models.CharField(max_length=30)
@@ -68,6 +121,7 @@ class Appointment(models.Model):
     message = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     public_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     def get_status_badge_class(self):

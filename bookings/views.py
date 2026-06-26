@@ -1,6 +1,11 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
-from .forms import AppointmentForm, AppointmentStatusForm
+from .forms import (
+    AppointmentForm,
+    AppointmentRescheduleForm,
+    AppointmentStatusForm,
+    get_available_time_choices,
+)
 from .models import Appointment, Service
 from .emails import (
     send_accountant_new_appointment_email,
@@ -17,8 +22,6 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.core.mail import send_mail
-from django.conf import settings
 
 
 class HomeView(View):
@@ -165,6 +168,7 @@ class AppointmentDetailView(LoginRequiredMixin, View):
     def get(self, request, pk):
         appointment = get_object_or_404(Appointment, pk=pk)
         status_form = AppointmentStatusForm(instance=appointment)
+        reschedule_form = AppointmentRescheduleForm(instance=appointment)
 
         return render(
             request,
@@ -172,34 +176,52 @@ class AppointmentDetailView(LoginRequiredMixin, View):
             {
                 "appointment": appointment,
                 "status_form": status_form,
+                "reschedule_form": reschedule_form,
             },
         )
 
     def post(self, request, pk):
         appointment = get_object_or_404(Appointment, pk=pk)
-        old_status = appointment.status
+        action = request.POST.get("action")
+        status_form = AppointmentStatusForm(instance=appointment)
+        reschedule_form = AppointmentRescheduleForm(instance=appointment)
 
-        status_form = AppointmentStatusForm(request.POST, instance=appointment)
+        if action == "reschedule":
+            reschedule_form = AppointmentRescheduleForm(request.POST, instance=appointment)
 
-        if status_form.is_valid():
-            appointment = status_form.save()
+            if reschedule_form.is_valid():
+                appointment = reschedule_form.save(commit=False)
+                appointment.status = "pending"
+                appointment.save()
+                messages.success(
+                    request,
+                    "Appointment rescheduled and moved back to pending review."
+                )
+                return redirect("appointment_detail", pk=appointment.pk)
 
-            if appointment.status != old_status:
-                if appointment.status in ["confirmed", "cancelled"]:
-                    send_client_status_update_email(appointment)
-                    messages.success(
-                        request,
-                        "Appointment status updated and client notified."
-                    )
+        else:
+            old_status = appointment.status
+            status_form = AppointmentStatusForm(request.POST, instance=appointment)
+
+            if status_form.is_valid():
+                appointment = status_form.save()
+
+                if appointment.status != old_status:
+                    if appointment.status in ["confirmed", "cancelled"]:
+                        send_client_status_update_email(appointment)
+                        messages.success(
+                            request,
+                            "Appointment status updated and client notified."
+                        )
+                    else:
+                        messages.success(
+                            request,
+                            "Appointment status updated."
+                        )
                 else:
-                    messages.success(
-                        request,
-                        "Appointment status updated."
-                    )
-            else:
-                messages.info(request, "No status change was made.")
+                    messages.info(request, "No status change was made.")
 
-            return redirect("appointment_detail", pk=appointment.pk)
+                return redirect("appointment_detail", pk=appointment.pk)
 
         return render(
             request,
@@ -207,17 +229,113 @@ class AppointmentDetailView(LoginRequiredMixin, View):
             {
                 "appointment": appointment,
                 "status_form": status_form,
+                "reschedule_form": reschedule_form,
             },
         )
+
+class AppointmentRescheduleView(View):
+    def get_appointment(self, token):
+        return get_object_or_404(Appointment, public_token=token)
+
+    def get(self, request, token):
+        appointment = self.get_appointment(token)
+
+        if appointment.status in ["cancelled", "completed"]:
+            messages.warning(
+                request,
+                "This appointment can no longer be rescheduled."
+            )
+            return redirect("appointment_success", token=appointment.public_token)
+
+        form = AppointmentRescheduleForm(instance=appointment)
+        return render(
+            request,
+            "bookings/appointment_reschedule.html",
+            {"appointment": appointment, "form": form},
+        )
+
+    def post(self, request, token):
+        appointment = self.get_appointment(token)
+
+        if appointment.status in ["cancelled", "completed"]:
+            messages.warning(
+                request,
+                "This appointment can no longer be rescheduled."
+            )
+            return redirect("appointment_success", token=appointment.public_token)
+
+        form = AppointmentRescheduleForm(request.POST, instance=appointment)
+
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.status = "pending"
+            appointment.save()
+            messages.success(
+                request,
+                "Your appointment request was rescheduled and is pending review."
+            )
+            return redirect("appointment_success", token=appointment.public_token)
+
+        return render(
+            request,
+            "bookings/appointment_reschedule.html",
+            {"appointment": appointment, "form": form},
+        )
+
+class AppointmentCancelView(View):
+    def post(self, request, token):
+        appointment = get_object_or_404(Appointment, public_token=token)
+
+        if appointment.status == "completed":
+            messages.warning(request, "Completed appointments cannot be cancelled.")
+            return redirect("appointment_success", token=appointment.public_token)
+
+        if appointment.status == "cancelled":
+            messages.info(request, "This appointment is already cancelled.")
+            return redirect("appointment_success", token=appointment.public_token)
+
+        appointment.status = "cancelled"
+        appointment.save(update_fields=["status", "updated_at"])
+        send_client_status_update_email(appointment)
+        messages.success(request, "Your appointment has been cancelled.")
+        return redirect("appointment_success", token=appointment.public_token)
     
 class BookedTimesView(View):
     def get(self, request):
         appointment_date = request.GET.get("date")
+        exclude_token = request.GET.get("exclude_token")
+
+        exclude_appointment = None
+
+        if exclude_token:
+            exclude_appointment = Appointment.objects.filter(
+                public_token=exclude_token
+            ).first()
 
         booked_times = Appointment.objects.filter(
             appointment_date=appointment_date
-        ).values_list("appointment_time", flat=True)
+        ).exclude(status="cancelled").values_list("appointment_time", flat=True)
+        available_times = []
+
+        if appointment_date:
+            try:
+                parsed_date = datetime.strptime(
+                    appointment_date,
+                    "%Y-%m-%d",
+                ).date()
+                available_times = [
+                    {
+                        "value": value.strftime("%H:%M:%S"),
+                        "label": label,
+                    }
+                    for value, label in get_available_time_choices(
+                        parsed_date,
+                        exclude_appointment=exclude_appointment,
+                    )
+                ]
+            except ValueError:
+                available_times = []
 
         data = [time.strftime("%H:%M:%S") for time in booked_times]
 
-        return JsonResponse({"booked_times": data})
+        return JsonResponse({"booked_times": data, "available_times": available_times})

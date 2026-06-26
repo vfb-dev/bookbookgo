@@ -77,6 +77,7 @@
 
         <form method="post" class="mt-4 pt-4 border-top">
           {% csrf_token %}
+          <input type="hidden" name="action" value="status" />
 
           <label class="form-label" for="{{ status_form.status.id_for_label }}">
             Update status
@@ -92,6 +93,39 @@
 
     <div class="col-12">
       <section class="panel">
+        <h2 class="h4 mb-3">Reschedule</h2>
+
+        <form method="post" class="row g-3 align-items-end">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="reschedule" />
+
+          <div class="col-md-5">
+            <label class="form-label" for="{{ reschedule_form.appointment_date.id_for_label }}">
+              New date
+            </label>
+            {{ reschedule_form.appointment_date }}
+            {{ reschedule_form.appointment_date.errors }}
+          </div>
+
+          <div class="col-md-5">
+            <label class="form-label" for="{{ reschedule_form.appointment_time.id_for_label }}">
+              New time
+            </label>
+            {{ reschedule_form.appointment_time }}
+            {{ reschedule_form.appointment_time.errors }}
+          </div>
+
+          <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">
+              Save
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="col-12">
+      <section class="panel">
         <h2 class="h4 mb-3">Message</h2>
         <p class="mb-0">
           {{ appointment.message|default:"No message provided." }}
@@ -100,4 +134,51 @@
     </div>
   </div>
 </div>
+
+<script>
+  const dateInput = document.querySelector("#id_appointment_date");
+  const timeSelect = document.querySelector("#id_appointment_time");
+  const excludeToken = "{{ appointment.public_token }}";
+
+  function setTimePlaceholder(label) {
+    if (!timeSelect) {
+      return;
+    }
+
+    timeSelect.innerHTML = "";
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = label;
+    timeSelect.appendChild(option);
+  }
+
+  async function refreshAvailableTimes() {
+    if (!dateInput?.value || !timeSelect) {
+      setTimePlaceholder("Select a date first");
+      return;
+    }
+
+    const selectedTime = timeSelect.value;
+    setTimePlaceholder("Loading times...");
+
+    const response = await fetch(
+      `{% url 'booked_times' %}?date=${encodeURIComponent(dateInput.value)}&exclude_token=${excludeToken}`
+    );
+    const data = await response.json();
+
+    setTimePlaceholder(
+      data.available_times.length ? "Select a time" : "No available times"
+    );
+
+    for (const slot of data.available_times) {
+      const option = document.createElement("option");
+      option.value = slot.value;
+      option.textContent = slot.label;
+      option.selected = slot.value === selectedTime;
+      timeSelect.appendChild(option);
+    }
+  }
+
+  dateInput?.addEventListener("change", refreshAvailableTimes);
+</script>
 {% endblock %}

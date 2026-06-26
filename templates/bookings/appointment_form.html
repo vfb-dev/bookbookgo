@@ -201,42 +201,46 @@
   const dateInput = document.querySelector("#id_appointment_date");
   const timeSelect = document.querySelector("#id_appointment_time");
 
-  function resetTimeOptions() {
+  function setTimePlaceholder(label) {
     if (!timeSelect) {
       return;
     }
 
-    for (const option of timeSelect.options) {
-      option.disabled = false;
-      option.textContent = option.textContent.replace(" (Booked)", "");
-    }
+    timeSelect.innerHTML = "";
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = label;
+    timeSelect.appendChild(option);
   }
 
-  async function refreshBookedTimes() {
-    resetTimeOptions();
-
+  async function refreshAvailableTimes() {
     if (!dateInput?.value || !timeSelect) {
+      setTimePlaceholder("Select a date first");
       return;
     }
+
+    const selectedTime = timeSelect.value;
+    setTimePlaceholder("Loading times...");
 
     const response = await fetch(
       `{% url 'booked_times' %}?date=${encodeURIComponent(dateInput.value)}`
     );
     const data = await response.json();
 
-    for (const option of timeSelect.options) {
-      if (data.booked_times.includes(option.value)) {
-        option.disabled = true;
-        option.textContent = `${option.textContent} (Booked)`;
-      }
-    }
+    setTimePlaceholder(
+      data.available_times.length ? "Select a time" : "No available times"
+    );
 
-    if (timeSelect.selectedOptions[0]?.disabled) {
-      timeSelect.value = "";
+    for (const slot of data.available_times) {
+      const option = document.createElement("option");
+      option.value = slot.value;
+      option.textContent = slot.label;
+      option.selected = slot.value === selectedTime;
+      timeSelect.appendChild(option);
     }
   }
 
-  dateInput?.addEventListener("change", refreshBookedTimes);
+  dateInput?.addEventListener("change", refreshAvailableTimes);
 </script>
 
 <script>

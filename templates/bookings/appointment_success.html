@@ -38,9 +38,17 @@
         </ul>
 
         <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
-          <a href="{% url 'appointment_create' %}" class="btn btn-primary">
-            Book Another Appointment
+          {% if appointment.status != "cancelled" and appointment.status != "completed" %}
+          <a href="{% url 'appointment_reschedule' appointment.public_token %}" class="btn btn-primary">
+            Reschedule
           </a>
+          <form method="post" action="{% url 'appointment_cancel' appointment.public_token %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">
+              Cancel
+            </button>
+          </form>
+          {% endif %}
           <a href="{% url 'home' %}" class="btn btn-outline-secondary">
             Back Home
           </a>

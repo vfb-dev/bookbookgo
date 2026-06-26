@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import Appointment, Service
+from .models import Appointment, AvailabilityRule, BlockedDate, Service
 
-# Register your models here.
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ("name", "duration_minutes", "price", "is_active")
@@ -23,3 +22,22 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_filter = ("status", "service", "appointment_date", "business_type")
     search_fields = ("full_name", "email", "phone", "business_name")
     list_editable = ("status",)
+
+
+@admin.register(AvailabilityRule)
+class AvailabilityRuleAdmin(admin.ModelAdmin):
+    list_display = (
+        "weekday",
+        "start_time",
+        "end_time",
+        "slot_duration_minutes",
+        "is_active",
+    )
+    list_filter = ("weekday", "is_active")
+    list_editable = ("is_active",)
+
+
+@admin.register(BlockedDate)
+class BlockedDateAdmin(admin.ModelAdmin):
+    list_display = ("date", "reason")
+    search_fields = ("reason",)
