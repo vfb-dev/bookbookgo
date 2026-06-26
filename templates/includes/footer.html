@@ -1,0 +1,24 @@
+<footer class="border-top bg-white py-3 mt-auto">
+  <div class="container">
+    <div
+      class="d-flex flex-column flex-sm-row justify-content-between align-items-center small text-muted"
+    >
+      <span>&copy; {% now "Y" %} BookBookGo</span>
+
+      <nav class="d-flex gap-3 mt-2 mt-sm-0" aria-label="Footer">
+        <a href="{% url 'home' %}" class="text-decoration-none text-muted">
+          Home
+        </a>
+        <a href="{% url 'contact' %}" class="text-decoration-none text-muted">
+          Contact
+        </a>
+        <a
+          href="{% url 'appointment_create' %}"
+          class="text-decoration-none text-muted"
+        >
+          Book
+        </a>
+      </nav>
+    </div>
+  </div>
+</footer>

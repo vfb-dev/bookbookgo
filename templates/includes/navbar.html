@@ -1,0 +1,149 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+  <div class="container">
+    <a
+      class="navbar-brand d-inline-flex align-items-center gap-2 fw-bold"
+      href="{% url 'home' %}"
+      aria-label="BookBookGo home"
+    >
+      <span class="brand-mark" aria-hidden="true">BB</span>
+      <span>BookBookGo</span>
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileDrawer"
+      aria-controls="mobileDrawer"
+      aria-label="Open navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div
+      class="offcanvas offcanvas-start mobile-drawer"
+      tabindex="-1"
+      id="mobileDrawer"
+      aria-labelledby="mobileDrawerLabel"
+    >
+      <div class="offcanvas-header border-bottom">
+        <a
+          class="navbar-brand d-inline-flex align-items-center gap-2 fw-bold"
+          href="{% url 'home' %}"
+          id="mobileDrawerLabel"
+          aria-label="BookBookGo home"
+        >
+          <span class="brand-mark" aria-hidden="true">BB</span>
+          <span>BookBookGo</span>
+        </a>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close navigation"
+        ></button>
+      </div>
+
+      <div class="offcanvas-body">
+        <ul class="navbar-nav gap-1">
+          <li class="nav-item">
+            <a
+              class="nav-link drawer-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+              href="{% url 'home' %}"
+              {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
+            >
+              Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link drawer-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}"
+              href="{% url 'contact' %}"
+              {% if request.resolver_match.url_name == 'contact' %}aria-current="page"{% endif %}
+            >
+              Contact
+            </a>
+          </li>
+
+          {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            <a
+              class="nav-link drawer-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'appointment_detail' %}active{% endif %}"
+              href="{% url 'dashboard' %}"
+              {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'appointment_detail' %}aria-current="page"{% endif %}
+            >
+              Dashboard
+            </a>
+          </li>
+          {% endif %}
+
+          {% if request.user.is_staff %}
+          <li class="nav-item">
+            <a class="nav-link drawer-link" href="/admin/">Admin</a>
+          </li>
+          {% endif %}
+
+          <li class="nav-item mt-3">
+            <a
+              class="btn btn-primary w-100 {% if request.resolver_match.url_name == 'appointment_create' %}active{% endif %}"
+              href="{% url 'appointment_create' %}"
+            >
+              Book Appointment
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="collapse navbar-collapse d-none d-lg-flex" id="mainNavbar">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+            href="{% url 'home' %}"
+            {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
+          >
+            Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 {% if request.resolver_match.url_name == 'contact' %}active{% endif %}"
+            href="{% url 'contact' %}"
+            {% if request.resolver_match.url_name == 'contact' %}aria-current="page"{% endif %}
+          >
+            Contact
+          </a>
+        </li>
+
+        {% if request.user.is_authenticated %}
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'appointment_detail' %}active{% endif %}"
+            href="{% url 'dashboard' %}"
+            {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'appointment_detail' %}aria-current="page"{% endif %}
+          >
+            Dashboard
+          </a>
+        </li>
+        {% endif %}
+
+        {% if request.user.is_staff %}
+        <li class="nav-item">
+          <a class="nav-link px-3" href="/admin/">Admin</a>
+        </li>
+        {% endif %}
+
+        <li class="nav-item ms-lg-2">
+          <a
+            class="btn btn-primary {% if request.resolver_match.url_name == 'appointment_create' %}active{% endif %}"
+            href="{% url 'appointment_create' %}"
+          >
+            Book Appointment
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
