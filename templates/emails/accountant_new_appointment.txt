@@ -1,0 +1,16 @@
+New appointment request
+
+Client: {{ appointment.full_name }}
+Email: {{ appointment.email }}
+Phone: {{ appointment.phone }}
+Service: {{ appointment.service.name }}
+Date: {{ appointment.appointment_date }}
+Time: {{ appointment.appointment_time|time:"g:i A" }}
+Business: {{ appointment.business_name|default:"Not provided" }}
+Business type: {{ appointment.get_business_type_display }}
+
+Message:
+{{ appointment.message|default:"No message provided." }}
+
+Open appointment:
+{{ appointment_url }}

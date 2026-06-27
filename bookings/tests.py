@@ -1,8 +1,15 @@
 from datetime import time, timedelta
 
+from django.core import mail
 from django.test import TestCase
+from django.test import override_settings
 from django.utils import timezone
 
+from .emails import (
+    send_accountant_new_appointment_email,
+    send_client_appointment_received_email,
+    send_client_status_update_email,
+)
 from .forms import AppointmentForm
 from .models import Appointment, AvailabilityRule, BlockedDate, Service
 
@@ -159,3 +166,70 @@ class ContactPageTests(TestCase):
         self.assertContains(response, "+1 (555) 016-2040")
         self.assertContains(response, "hello@bookbookgo.com")
         self.assertContains(response, "Instagram")
+
+
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    DEFAULT_FROM_EMAIL="BookBookGo <bookings@example.com>",
+    ACCOUNTANT_EMAIL="accountant@example.com",
+    SUPPORT_EMAIL="support@example.com",
+    BUSINESS_NAME="BookBookGo",
+    SITE_URL="https://bookbookgo.example",
+)
+class AppointmentEmailTests(TestCase):
+    def setUp(self):
+        self.service = Service.objects.create(
+            name="Tax Consultation",
+            description="Tax help",
+            duration_minutes=60,
+            price=120,
+            is_active=True,
+        )
+        self.appointment = Appointment.objects.create(
+            service=self.service,
+            appointment_date=timezone.localdate() + timedelta(days=1),
+            appointment_time=time(9, 0),
+            full_name="Victor Farias",
+            email="victor@example.com",
+            phone="21999999999",
+            business_name="Car Shop",
+            business_type="small_business",
+            message="Need tax help.",
+        )
+
+    def test_client_received_email_is_multipart_and_links_to_booking(self):
+        send_client_appointment_received_email(self.appointment)
+
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, "We received your appointment request")
+        self.assertEqual(message.to, ["victor@example.com"])
+        self.assertEqual(message.reply_to, ["support@example.com"])
+        self.assertIn("View or manage your appointment", message.body)
+        self.assertIn("https://bookbookgo.example/booking/success/", message.body)
+        self.assertEqual(message.alternatives[0][1], "text/html")
+        self.assertIn("View or manage appointment", message.alternatives[0][0])
+
+    def test_accountant_email_goes_to_accountant_and_replies_to_client(self):
+        send_accountant_new_appointment_email(self.appointment)
+
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(
+            message.subject,
+            "New appointment request from Victor Farias",
+        )
+        self.assertEqual(message.to, ["accountant@example.com"])
+        self.assertEqual(message.reply_to, ["victor@example.com"])
+        self.assertIn("Need tax help.", message.body)
+
+    def test_status_update_email_uses_status_specific_copy(self):
+        self.appointment.status = "confirmed"
+        self.appointment.save(update_fields=["status", "updated_at"])
+
+        send_client_status_update_email(self.appointment)
+
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, "Your appointment is confirmed")
+        self.assertIn("Your accounting consultation has been confirmed.", message.body)

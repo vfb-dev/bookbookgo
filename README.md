@@ -23,7 +23,7 @@ A Django booking system for accounting consultations. Clients can request appoin
 - Weekend booking prevention
 - Booked time slot disabling
 - Booking confirmation page
-- Email notifications using Django email backend
+- Multipart HTML and plain-text email notifications using Django email backend
 - Accountant dashboard
 - Appointment search, status filters, date filters, and pagination
 - Appointment detail page

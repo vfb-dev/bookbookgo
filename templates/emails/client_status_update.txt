@@ -1,0 +1,12 @@
+Hi {{ appointment.full_name }},
+
+{{ status_intro }} {{ status_detail }}
+
+Service: {{ appointment.service.name }}
+Date: {{ appointment.appointment_date }}
+Time: {{ appointment.appointment_time|time:"g:i A" }}
+
+View your appointment:
+{{ appointment_url }}
+
+Questions? Reply to this email or contact {{ support_email }}.

@@ -146,8 +146,20 @@ class AppointmentCreateView(View):
         if form.is_valid():
             appointment = form.save()
             
-            send_client_appointment_received_email(appointment)
-            send_accountant_new_appointment_email(appointment)
+            client_email_sent = send_client_appointment_received_email(appointment)
+            accountant_email_sent = send_accountant_new_appointment_email(appointment)
+
+            if not client_email_sent:
+                messages.warning(
+                    request,
+                    "Your appointment was saved, but the confirmation email could not be sent.",
+                )
+
+            if not accountant_email_sent:
+                messages.warning(
+                    request,
+                    "Your appointment was saved, but the office notification email could not be sent.",
+                )
 
             return redirect("appointment_success", token=appointment.public_token)
 
@@ -208,11 +220,18 @@ class AppointmentDetailView(LoginRequiredMixin, View):
 
                 if appointment.status != old_status:
                     if appointment.status in ["confirmed", "cancelled"]:
-                        send_client_status_update_email(appointment)
-                        messages.success(
-                            request,
-                            "Appointment status updated and client notified."
-                        )
+                        email_sent = send_client_status_update_email(appointment)
+
+                        if email_sent:
+                            messages.success(
+                                request,
+                                "Appointment status updated and client notified."
+                            )
+                        else:
+                            messages.warning(
+                                request,
+                                "Appointment status updated, but the client email could not be sent."
+                            )
                     else:
                         messages.success(
                             request,
@@ -296,8 +315,16 @@ class AppointmentCancelView(View):
 
         appointment.status = "cancelled"
         appointment.save(update_fields=["status", "updated_at"])
-        send_client_status_update_email(appointment)
-        messages.success(request, "Your appointment has been cancelled.")
+        email_sent = send_client_status_update_email(appointment)
+
+        if email_sent:
+            messages.success(request, "Your appointment has been cancelled.")
+        else:
+            messages.warning(
+                request,
+                "Your appointment has been cancelled, but the email confirmation could not be sent.",
+            )
+
         return redirect("appointment_success", token=appointment.public_token)
     
 class BookedTimesView(View):

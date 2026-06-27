@@ -128,11 +128,20 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+BUSINESS_NAME = config("BUSINESS_NAME", default="BookBookGo")
+SITE_URL = config("SITE_URL", default="")
+
 EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="Accounting Booking <noreply@example.com>")
-ACCOUNTANT_EMAIL = config("ACCOUNTANT_EMAIL", default="accountant@example.com")
 EMAIL_HOST = config("EMAIL_HOST", default="")
 EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="Accounting Booking <noreply@example.com>")
+ACCOUNTANT_EMAIL = config("ACCOUNTANT_EMAIL", default="accountant@example.com")
+SUPPORT_EMAIL = config("SUPPORT_EMAIL", default=ACCOUNTANT_EMAIL)
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
+
+
